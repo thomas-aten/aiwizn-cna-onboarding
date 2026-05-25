@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIWIZN · CNA Onboarding Engine · v1</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#00C896;--teal-d:#00A87A;--teal-l:rgba(0,200,150,.1);
+  --orange:#FF6B35;--orange-d:#D94B12;--orange-l:rgba(255,107,53,.1);
+  --navy:#0A1826;--navy-m:#1A3A5C;--navy-l:rgba(10,24,38,.07);
+  --cyan:#0BBCD4;--cyan-l:rgba(11,188,212,.1);
+  --crimson:#DC2626;--crimson-l:rgba(220,38,38,.09);
+  --amber:#F59E0B;--amber-l:rgba(245,158,11,.09);
+  --purple:#7C3AED;--purple-l:rgba(124,58,237,.09);
+  --white:#FFF;--bg:#F5F8FA;--panel2:#EEF3F7;
+  --border:#DDE8EF;--border2:#C4D5E2;
+  --txt:#0A1826;--txt2:#2E4A62;--txt3:#6B88A0;--txt4:#A2BAC8;
+  --shadow-sm:0 1px 4px rgba(10,24,38,.07);
+  --shadow:0 4px 18px rgba(10,24,38,.10);
+  --shadow-lg:0 8px 40px rgba(10,24,38,.16);
+  --sb:264px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--panel2)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+
+.hdr{position:fixed;top:0;left:0;right:0;z-index:600;background:var(--white);border-bottom:1.5px solid var(--border);height:54px;display:flex;align-items:center;box-shadow:var(--shadow-sm)}
+.hdr-logo{width:var(--sb);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 18px;border-right:1.5px solid var(--border);height:100%;cursor:pointer}
+.logo-wordmark{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy);letter-spacing:-.5px;line-height:1}
+.logo-tag{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--teal-d);letter-spacing:.2em;text-transform:uppercase;margin-top:2px}
+.hdr-center{flex:1;display:flex;align-items:center;padding:0 20px;gap:10px}
+.hdr-crumb{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--txt3);letter-spacing:.1em}
+.hdr-crumb-active{color:var(--teal-d)}
+.hdr-right{display:flex;align-items:center;gap:10px;padding:0 18px;border-left:1.5px solid var(--border);height:100%}
+.status-pill{display:flex;align-items:center;gap:6px;background:var(--teal-l);border:1px solid rgba(0,200,150,.2);padding:3px 11px;border-radius:20px}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 2s ease-in-out infinite}
+.status-txt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--teal-d);letter-spacing:.08em;font-weight:600}
+
+.sidebar{width:var(--sb);position:fixed;top:54px;bottom:0;left:0;background:var(--white);border-right:1.5px solid var(--border);overflow-y:auto;z-index:100}
+.sb-sec{padding:12px 16px 6px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--txt4);background:var(--panel2);border-bottom:1px solid var(--border)}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.03);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.sb-item:hover{background:var(--teal-l)}
+.sb-item.active{background:var(--teal-l);border-left-color:var(--teal)}
+.sb-item.done .sb-dot::after{content:'\2713';font-size:8px;color:var(--white)}
+.sb-item.done .sb-dot{background:var(--teal)!important;display:flex;align-items:center;justify-content:center}
+.sb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sb-num{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--txt4);width:14px;flex-shrink:0}
+.sb-label{font-size:11.5px;font-weight:600;color:var(--txt2)}
+.sb-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3);margin-top:1px}
+
+.app{margin-top:54px;display:flex;min-height:calc(100vh - 54px)}
+.content{margin-left:var(--sb);flex:1;padding:24px 28px 84px;min-height:calc(100vh - 54px)}
+.panel{display:none}.panel.active{display:block;animation:fadeUp .3s ease}
+
+.env-hero{position:relative;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow-lg);min-height:240px}
+.env-scene{width:100%;height:240px;display:block}
+.env-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,24,38,.10) 0%,rgba(10,24,38,.55) 100%)}
+.env-hud{position:absolute;inset:0;padding:20px 24px;display:flex;flex-direction:column;justify-content:flex-end}
+.env-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.7);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+.env-title{font-family:'Instrument Serif',serif;font-size:clamp(20px,3vw,30px);color:#fff;line-height:1.2;margin-bottom:8px}
+.env-meta{font-size:12px;color:rgba(255,255,255,.78);line-height:1.5;max-width:640px}
+.env-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.env-badge{font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(4px)}
+.env-badge.teal{background:rgba(0,200,150,.32);border-color:rgba(0,200,150,.5)}
+.env-badge.crit{background:rgba(220,38,38,.32);border-color:rgba(220,38,38,.5)}
+.env-badge.warn{background:rgba(245,158,11,.3);border-color:rgba(245,158,11,.5)}
+
+.scene-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:18px;box-shadow:var(--shadow-sm);position:relative}
+.scene-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--teal))}
+.sc-head{padding:18px 22px 14px;border-bottom:1.5px solid var(--border);background:var(--panel2)}
+.sc-eye{font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent,var(--teal-d));margin-bottom:5px}
+.sc-title{font-family:'Instrument Serif',serif;font-size:21px;color:var(--navy);line-height:1.25}
+.sc-meta{font-size:11.5px;color:var(--txt3);margin-top:3px}
+.sc-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.sc-body{padding:20px 22px}
+
+.bdg{font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:.06em;white-space:nowrap}
+.b-t{background:var(--teal-l);color:var(--teal-d);border:1px solid rgba(0,200,150,.25)}
+.b-o{background:var(--orange-l);color:var(--orange-d);border:1px solid rgba(255,107,53,.25)}
+.b-c{background:var(--crimson-l);color:var(--crimson);border:1px solid rgba(220,38,38,.25)}
+.b-a{background:var(--amber-l);color:#B45309;border:1px solid rgba(245,158,11,.25)}
+.b-p{background:var(--purple-l);color:var(--purple);border:1px solid rgba(124,58,237,.25)}
+.b-n{background:var(--navy-l);color:var(--navy-m);border:1px solid rgba(10,24,38,.15)}
+.b-cy{background:var(--cyan-l);color:#0369A1;border:1px solid rgba(11,188,212,.25)}
+
+.block-title{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--txt3);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.block-title::before{content:'';width:8px;height:8px;border-radius:2px;background:var(--accent,var(--teal))}
+
+.situation{background:var(--panel2);border-left:4px solid var(--accent,var(--teal));padding:14px 18px;border-radius:0 10px 10px 0;font-size:13.5px;color:var(--txt2);line-height:1.72;font-style:italic;margin-bottom:16px}
+.situation-label{font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent,var(--teal-d));margin-bottom:7px;font-style:normal;display:block}
+.situation strong{font-style:normal;color:var(--navy);font-weight:700}
+
+.check-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.check-item{display:flex;align-items:flex-start;gap:12px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm)}
+.check-item:hover{border-color:var(--accent,var(--teal));transform:translateX(2px)}
+.check-box{width:21px;height:21px;border-radius:6px;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px;font-size:12px;font-weight:700;color:transparent}
+.check-item.done .check-box{background:var(--teal);border-color:var(--teal);color:#fff}
+.check-item.done .check-box::after{content:'\2713'}
+.check-item.done .ck-title{color:var(--txt3)}
+.ck-body{flex:1}
+.ck-title{font-size:13px;font-weight:600;color:var(--txt)}
+.ck-sub{font-size:11.5px;color:var(--txt3);margin-top:2px;line-height:1.5}
+.ck-tag{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.05em;margin-left:8px}
+
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-bottom:8px}
+.comp-card{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:13px 15px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm);position:relative;border-left:4px solid var(--border2)}
+.comp-card:hover{border-left-color:var(--teal);transform:translateY(-2px);box-shadow:var(--shadow)}
+.comp-card.done{border-left-color:var(--teal);background:var(--teal-l)}
+.comp-head{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.comp-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border2);flex-shrink:0;font-size:10px;font-weight:700;color:transparent;display:flex;align-items:center;justify-content:center}
+.comp-card.done .comp-check{background:var(--teal);border-color:var(--teal);color:#fff}
+.comp-card.done .comp-check::after{content:'\2713'}
+.comp-name{font-size:12.5px;font-weight:700;color:var(--navy)}
+.comp-sub{font-size:11px;color:var(--txt3);line-height:1.5}
+.comp-status{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:6px;color:var(--txt4)}
+.comp-card.done .comp-status{color:var(--teal-d)}
+
+.decision{background:var(--white);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+.dec-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--teal-l);border-bottom:1px solid rgba(0,200,150,.15)}
+.dec-icon{font-size:15px;color:var(--teal-d)}
+.dec-label{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--teal-d);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.dec-body{padding:14px 16px;font-size:13.5px;color:var(--txt);font-weight:600;line-height:1.6}
+.dec-signal{padding:8px 16px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--txt3);border-top:1px solid var(--border);background:var(--panel2)}
+
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0 16px}
+.choice{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+.choice::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--border2);transition:background .2s}
+.choice:hover{border-color:var(--teal);box-shadow:var(--shadow);transform:translateY(-2px)}
+.choice:hover::before{background:var(--teal)}
+.choice.sel-expert{border-color:var(--teal);background:var(--teal-l)}
+.choice.sel-expert::before{background:var(--teal)}
+.choice.sel-gap{border-color:var(--crimson);background:var(--crimson-l)}
+.choice.sel-gap::before{background:var(--crimson)}
+.choice.sel-mid{border-color:var(--amber);background:var(--amber-l)}
+.choice.sel-mid::before{background:var(--amber)}
+.choice-id{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:var(--txt3);margin-bottom:5px}
+.choice-text{font-size:12.5px;color:var(--txt2);line-height:1.55;margin-bottom:8px}
+.choice-signal{font-size:11px;line-height:1.45;font-family:'JetBrains Mono',monospace;display:none}
+.choice.revealed .choice-signal{display:block}
+.sig-expert{color:var(--teal-d)}.sig-gap{color:var(--crimson)}.sig-mid{color:#B45309}
+
+.outcome{border-radius:10px;padding:14px 18px;margin-top:10px;display:none;border:1.5px solid;animation:fadeUp .3s ease}
+.outcome.visible{display:block}
+.out-expert{border-color:rgba(0,200,150,.35);background:var(--teal-l)}
+.out-gap{border-color:rgba(220,38,38,.3);background:var(--crimson-l)}
+.out-mid{border-color:rgba(245,158,11,.3);background:var(--amber-l)}
+.out-label{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:7px}
+.lb-expert{color:var(--teal-d)}.lb-gap{color:var(--crimson)}.lb-mid{color:#B45309}
+.out-text{font-size:13px;color:var(--txt2);line-height:1.65}
+
+.annotation{background:var(--panel2);border:1.5px solid var(--border);border-left:4px solid var(--amber);border-radius:0 10px 10px 0;padding:12px 16px;margin:12px 0}
+.ann-label{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:#B45309;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:5px}
+.ann-body{font-size:12.5px;color:var(--txt2);line-height:1.65}
+.ann-teal{border-left-color:var(--teal)}.ann-teal .ann-label{color:var(--teal-d)}
+.ann-navy{border-left-color:var(--navy-m)}.ann-navy .ann-label{color:var(--navy-m)}
+
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:16px}
+.info-card{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow-sm)}
+.ic-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);margin-bottom:4px;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+.ic-val{font-size:13px;font-weight:700;color:var(--navy)}
+.ic-sub{font-size:11px;color:var(--txt3);margin-top:2px;line-height:1.4}
+
+.progress-bar{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:12px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm)}
+.pb-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3);letter-spacing:.1em;text-transform:uppercase;font-weight:600;white-space:nowrap}
+.pb-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--cyan));border-radius:3px;transition:width .5s ease}
+.pb-pct{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--teal-d);font-weight:700;white-space:nowrap}
+
+.timeline{position:relative;padding-left:38px;margin:6px 0 8px}
+.timeline::before{content:'';position:absolute;left:13px;top:8px;bottom:8px;width:2.5px;background:var(--border2)}
+.tl-node{position:relative;margin-bottom:12px}
+.tl-dot{position:absolute;left:-38px;top:0;width:28px;height:28px;border-radius:50%;background:var(--white);border:2.5px solid var(--accent,var(--teal));display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:7.5px;font-weight:800;color:var(--accent,var(--teal));z-index:2}
+.tl-card{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:12px 15px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm);display:flex;align-items:flex-start;gap:11px}
+.tl-card:hover{border-color:var(--accent,var(--teal))}
+.tl-card.done{background:var(--teal-l);border-color:rgba(0,200,150,.3)}
+.tl-check{width:19px;height:19px;border-radius:5px;border:2px solid var(--border2);flex-shrink:0;font-size:11px;font-weight:700;color:transparent;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.tl-card.done .tl-check{background:var(--teal);border-color:var(--teal);color:#fff}
+.tl-card.done .tl-check::after{content:'\2713'}
+.tl-title{font-size:13px;font-weight:700;color:var(--navy)}
+.tl-sub{font-size:11.5px;color:var(--txt3);margin-top:3px;line-height:1.55}
+
+.unit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:8px}
+.unit-card{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;border-left:4px solid var(--uc,var(--teal));box-shadow:var(--shadow-sm);transition:all .2s}
+.unit-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.unit-name{font-family:'Instrument Serif',serif;font-size:16px;color:var(--navy);margin-bottom:3px}
+.unit-tag{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--uc,var(--teal-d));letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;font-weight:700}
+.unit-body{font-size:11.5px;color:var(--txt2);line-height:1.6}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:8px;border:1.5px solid;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-prev{border-color:var(--border2);background:var(--white);color:var(--txt2)}
+.btn-prev:hover{border-color:var(--navy-m);color:var(--navy)}
+.btn-next{border-color:var(--teal);background:var(--teal);color:var(--white)}
+.btn-next:hover{background:var(--teal-d);box-shadow:0 4px 14px rgba(0,200,150,.35)}
+.btn-orange{border-color:var(--orange);background:var(--orange);color:var(--white)}
+.btn-orange:hover{background:var(--orange-d);box-shadow:0 4px 14px rgba(255,107,53,.35)}
+.nav-ctrl{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:18px;border-top:1.5px solid var(--border);flex-wrap:wrap}
+
+.ov-hero{position:relative;text-align:center;padding:30px 0 22px;overflow:hidden}
+.ov-wm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:380px;opacity:.05;pointer-events:none}
+.ov-eye{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--teal-d);letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px;position:relative}
+.ov-big{font-family:'Instrument Serif',serif;font-size:clamp(24px,4vw,40px);color:var(--navy);margin-bottom:10px;line-height:1.2;position:relative}
+.ov-big em{font-style:italic;color:var(--teal-d)}
+.ov-body{font-size:13.5px;color:var(--txt2);max-width:600px;margin:0 auto 20px;line-height:1.7;position:relative}
+.ov-pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0 4px}
+.pillar{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow-sm);text-align:left;border-top:3px solid var(--pc,var(--teal))}
+.pillar-num{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--pc,var(--teal-d));letter-spacing:.1em}
+.pillar-h{font-family:'Instrument Serif',serif;font-size:17px;color:var(--navy);margin:5px 0;line-height:1.2}
+.pillar-b{font-size:11.5px;color:var(--txt3);line-height:1.55}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:14px;margin:22px 0 24px}
+.ov-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+.ov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:12px 12px 0 0;background:var(--oa,var(--teal))}
+.ov-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px);border-color:var(--oa,var(--teal))}
+.ov-num{font-family:'Instrument Serif',serif;font-size:46px;color:var(--oa,var(--teal));opacity:.12;position:absolute;top:2px;right:14px;line-height:1}
+.ov-id{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--txt3);margin-bottom:6px;letter-spacing:.1em;text-transform:uppercase}
+.ov-card-title{font-family:'Instrument Serif',serif;font-size:17px;color:var(--navy);margin-bottom:8px;line-height:1.3}
+.ov-card-meta{font-size:11px;color:var(--txt3);line-height:1.5}
+
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc,var(--teal))}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;font-weight:600}
+.stat-value{font-family:'Instrument Serif',serif;font-size:32px;color:var(--navy);line-height:1;margin-bottom:3px}
+.stat-sub{font-size:11px;color:var(--txt3)}
+.stat-trend{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;margin-top:4px}
+.tr-up{color:var(--teal-d)}.tr-dn{color:var(--crimson)}
+.dash-2col{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:18px}
+.dash-panel{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow-sm)}
+.dash-panel-title{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--txt3);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.dash-panel-title::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--pd,var(--teal))}
+.sess-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.sess-row:last-child{border-bottom:none}
+.sess-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--white);flex-shrink:0}
+.sess-name{font-weight:600;font-size:12.5px;color:var(--navy)}
+.sess-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3)}
+.sess-cci{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.cci-h{background:var(--teal-l);color:var(--teal-d)}
+.cci-m{background:var(--amber-l);color:#B45309}
+.cci-l{background:var(--crimson-l);color:var(--crimson)}
+.radar-row{display:flex;align-items:center;gap:10px}
+.radar-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--txt2);width:118px;flex-shrink:0;font-weight:500}
+.radar-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.radar-bar{height:100%;border-radius:4px;transition:width .8s ease}
+.radar-val{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;width:34px;text-align:right}
+
+.persona-terminal{background:var(--navy);border-radius:12px;padding:20px 24px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;color:#607D8B;margin-bottom:16px;box-shadow:var(--shadow-lg);overflow-x:auto}
+.pt-title{color:var(--teal);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:6px}
+.pt-hi{color:var(--teal);font-weight:700}
+.pt-mid{color:var(--amber);font-weight:700}
+.pt-lo{color:#EF4444;font-weight:700}
+.pt-flag{color:var(--orange)}
+.pt-wh{color:#fff;font-weight:600}
+.dm-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:8px;margin-bottom:18px}
+.dm-item{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow-sm)}
+.dm-label{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--txt3);margin-bottom:6px;letter-spacing:.05em;font-weight:500}
+.dm-bar-w{height:4px;background:var(--border);border-radius:2px;margin-bottom:5px;overflow:hidden}
+.dm-bar-f{height:100%;border-radius:2px;transition:width .8s ease}
+.dm-score{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(10,24,38,.55);z-index:800;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:32px;max-width:460px;width:90%;box-shadow:var(--shadow-lg);animation:fadeUp .25s ease}
+.modal h2{font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy);margin-bottom:8px}
+.modal p{font-size:13px;color:var(--txt2);margin-bottom:18px;line-height:1.6}
+.modal-input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;font-family:'Syne',sans-serif;font-size:14px;color:var(--navy);margin-bottom:10px;outline:none;transition:border-color .2s}
+.modal-input:focus{border-color:var(--teal)}
+
+.footer{position:fixed;bottom:0;left:var(--sb);right:0;background:var(--white);border-top:1.5px solid var(--border);padding:7px 28px;display:flex;align-items:center;justify-content:space-between;z-index:200;box-shadow:0 -2px 8px rgba(10,24,38,.05);flex-wrap:wrap;gap:6px}
+.footer-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.footer-tagline{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--teal-d);letter-spacing:.2em;text-transform:uppercase;font-weight:700}
+.footer-contact{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3)}
+.footer-contact a{color:var(--teal-d);text-decoration:none}
+.footer-right{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--txt3)}
+
+.toast-c{position:fixed;bottom:56px;right:22px;z-index:900;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--navy);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;padding:10px 16px;border-radius:8px;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);animation:fadeUp .3s ease;letter-spacing:.04em}
+.toast.t-ok{background:var(--teal-d)}
+.toast.t-warn{background:#B45309}
+
+@media(max-width:900px){.sidebar{display:none}.content{margin-left:0}.footer{left:0}.dash-grid{grid-template-columns:1fr 1fr}.dash-2col{grid-template-columns:1fr}}
+@media(max-width:600px){.dash-grid{grid-template-columns:1fr}.choices{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo" onclick="go('overview')">
+    <svg width="30" height="30" viewBox="0 0 400 400">
+      <defs>
+        <linearGradient id="g1" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FF9A6C"/><stop offset="100%" stop-color="#D94B12"/></linearGradient>
+        <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00EDB4"/><stop offset="100%" stop-color="#00A87A"/></linearGradient>
+        <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A4A70"/><stop offset="100%" stop-color="#0D2D47"/></linearGradient>
+        <linearGradient id="g4" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0BBCD4"/><stop offset="100%" stop-color="#076A80"/></linearGradient>
+      </defs>
+      <polygon points="200,20 20,200 200,200" fill="url(#g1)"/>
+      <polygon points="200,20 200,200 380,200" fill="url(#g2)"/>
+      <polygon points="20,200 200,380 200,200" fill="url(#g3)"/>
+      <polygon points="200,200 200,380 380,200" fill="url(#g4)"/>
+      <line x1="200" y1="20" x2="200" y2="380" stroke="#fff" stroke-width="6" stroke-opacity=".5"/>
+      <line x1="20" y1="200" x2="380" y2="200" stroke="#fff" stroke-width="6" stroke-opacity=".5"/>
+    </svg>
+    <div><div class="logo-wordmark">AIWIZN</div><div class="logo-tag">Wisdom Engine</div></div>
+  </div>
+  <div class="hdr-center">
+    <span class="hdr-crumb">CNA Onboarding Engine</span>
+    <span class="hdr-crumb" style="color:var(--txt4)">&middot;</span>
+    <span class="hdr-crumb hdr-crumb-active" id="hdr-crumb">EIGHT ELEMENTS OF READINESS</span>
+  </div>
+  <div class="hdr-right">
+    <div class="status-pill"><div class="pulse-dot"></div><div class="status-txt" id="hdr-nurse">DEMO</div></div>
+    <button class="btn btn-orange" onclick="showModal()" style="padding:6px 14px;font-size:9px">New Cohort</button>
+  </div>
+</header>
+
+<aside class="sidebar">
+  <div class="sb-sec">Onboarding Pathway</div>
+  <div class="sb-item active" id="sb-e1" onclick="goSide('e1',this)"><span class="sb-num">01</span><div class="sb-dot" style="background:var(--navy-m)"></div><div><div class="sb-label">Pre-Employment / Credentialing</div><div class="sb-sub">License &middot; Health &middot; Background</div></div></div>
+  <div class="sb-item" id="sb-e2" onclick="goSide('e2',this)"><span class="sb-num">02</span><div class="sb-dot" style="background:var(--cyan)"></div><div><div class="sb-label">General Hospital Orientation</div><div class="sb-sub">Culture &middot; Conduct &middot; Escalation</div></div></div>
+  <div class="sb-item" id="sb-e3" onclick="goSide('e3',this)"><span class="sb-num">03</span><div class="sb-dot" style="background:var(--crimson)"></div><div><div class="sb-label">Regulatory &amp; Safety Training</div><div class="sb-sub">Falls &middot; PPE &middot; Codes &middot; HIPAA</div></div></div>
+  <div class="sb-item" id="sb-e4" onclick="goSide('e4',this)"><span class="sb-num">04</span><div class="sb-dot" style="background:var(--teal)"></div><div><div class="sb-label">Clinical Skills Validation</div><div class="sb-sub">ADLs &middot; Mobility &middot; Vitals</div></div></div>
+  <div class="sb-item" id="sb-e5" onclick="goSide('e5',this)"><span class="sb-num">05</span><div class="sb-dot" style="background:var(--purple)"></div><div><div class="sb-label">EHR / Documentation Training</div><div class="sb-sub">Flowsheets &middot; I/O &middot; Queues</div></div></div>
+  <div class="sb-item" id="sb-e6" onclick="goSide('e6',this)"><span class="sb-num">06</span><div class="sb-dot" style="background:var(--amber)"></div><div><div class="sb-label">Unit-Specific Orientation</div><div class="sb-sub">Med-Surg &middot; ICU &middot; ED</div></div></div>
+  <div class="sb-item" id="sb-e7" onclick="goSide('e7',this)"><span class="sb-num">07</span><div class="sb-dot" style="background:var(--orange)"></div><div><div class="sb-label">Preceptorship / Buddy Period</div><div class="sb-sub">Supervised &rarr; Independent</div></div></div>
+  <div class="sb-item" id="sb-e8" onclick="goSide('e8',this)"><span class="sb-num">08</span><div class="sb-dot" style="background:var(--teal-d)"></div><div><div class="sb-label">Ongoing Checkpoints</div><div class="sb-sub">30 / 60 / 90-day &middot; Annual</div></div></div>
+  <div class="sb-sec">Outputs</div>
+  <div class="sb-item" id="sb-readiness" onclick="goSide('readiness',this)"><span class="sb-num">&#9670;</span><div class="sb-dot" style="background:var(--amber)"></div><div><div class="sb-label">READINESS Profile</div><div class="sb-sub">CRI &middot; Placement &middot; Stage</div></div></div>
+  <div class="sb-item" id="sb-dashboard" onclick="goSide('dashboard',this)"><span class="sb-num">&#9670;</span><div class="sb-dot" style="background:var(--teal)"></div><div><div class="sb-label">LUMINA Dashboard</div><div class="sb-sub">Cohort analytics &middot; History</div></div></div>
+</aside>
+
+<main class="app">
+<div class="content">
+
+<!-- OVERVIEW -->
+<div id="panel-overview" class="panel active">
+  <div class="ov-hero">
+    <svg class="ov-wm" viewBox="0 0 400 400">
+      <polygon points="200,20 20,200 200,200" fill="#FF6B35"/>
+      <polygon points="200,20 200,200 380,200" fill="#00C896"/>
+      <polygon points="20,200 200,380 200,200" fill="#1A3A5C"/>
+      <polygon points="200,200 200,380 380,200" fill="#0BBCD4"/>
+    </svg>
+    <div style="display:flex;justify-content:center;margin-bottom:16px;position:relative">
+      <svg width="68" height="68" viewBox="0 0 400 400">
+        <defs>
+          <linearGradient id="og1" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FF9A6C"/><stop offset="100%" stop-color="#D94B12"/></linearGradient>
+          <linearGradient id="og2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00EDB4"/><stop offset="100%" stop-color="#00A87A"/></linearGradient>
+          <linearGradient id="og3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A4A70"/><stop offset="100%" stop-color="#0D2D47"/></linearGradient>
+          <linearGradient id="og4" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0BBCD4"/><stop offset="100%" stop-color="#076A80"/></linearGradient>
+        </defs>
+        <polygon points="200,20 20,200 200,200" fill="url(#og1)"/>
+        <polygon points="200,20 200,200 380,200" fill="url(#og2)"/>
+        <polygon points="20,200 200,380 200,200" fill="url(#og3)"/>
+        <polygon points="200,200 200,380 380,200" fill="url(#og4)"/>
+        <line x1="200" y1="20" x2="200" y2="380" stroke="#fff" stroke-width="6" stroke-opacity=".5"/>
+        <line x1="20" y1="200" x2="380" y2="200" stroke="#fff" stroke-width="6" stroke-opacity=".5"/>
+        <circle cx="200" cy="20" r="8" fill="#fff" fill-opacity=".9"/>
+        <circle cx="380" cy="200" r="6" fill="#00EDB4"/>
+        <circle cx="200" cy="380" r="6" fill="#0BBCD4"/>
+        <circle cx="20" cy="200" r="6" fill="#FF9A6C"/>
+      </svg>
+    </div>
+    <div class="ov-eye">AIWIZN &middot; CNA Onboarding Engine &middot; POC v1</div>
+    <h1 class="ov-big">Credentialed. Competent.<br><em>Confidently Independent.</em></h1>
+    <p class="ov-body">An immersive, eight-element onboarding pathway for Certified Nursing Assistants, Patient Care Technicians, and Patient Care Assistants &mdash; from pre-employment credentialing through 30/60/90-day mastery. Every checklist, competency, and decision is tracked by COGNITA and synthesized into a placement-ready READINESS profile.</p>
+  </div>
+
+  <div class="progress-bar"><div class="pb-label">Pathway Architecture</div><div class="pb-track"><div class="pb-fill" style="width:100%"></div></div><div class="pb-pct">8 Elements &middot; 35 Checkpoints &middot; 11 Decision Nodes</div></div>
+
+  <div class="block-title">The Four Essentials a Strong CNA Onboarding Program Teaches</div>
+  <div class="ov-pillars">
+    <div class="pillar" style="--pc:var(--crimson)"><div class="pillar-num">ESSENTIAL 01</div><div class="pillar-h">How to Stay Safe</div><div class="pillar-b">Falls, safe handling, infection control, emergency codes, and patient rights &mdash; the non-negotiable foundation.</div></div>
+    <div class="pillar" style="--pc:var(--navy-m)"><div class="pillar-num">ESSENTIAL 02</div><div class="pillar-h">Scope &amp; Escalation</div><div class="pillar-b">Knowing what is &mdash; and is not &mdash; within the CNA role, and when and how to escalate to the licensed nurse.</div></div>
+    <div class="pillar" style="--pc:var(--cyan)"><div class="pillar-num">ESSENTIAL 03</div><div class="pillar-h">How the Hospital Works</div><div class="pillar-b">Mission, culture, chain of command, documentation systems, and the organizational expectations of the role.</div></div>
+    <div class="pillar" style="--pc:var(--amber)"><div class="pillar-num">ESSENTIAL 04</div><div class="pillar-h">How the Unit Functions</div><div class="pillar-b">Unit-specific workflows, patient populations, routines, and the communication rhythms of the assigned floor.</div></div>
+  </div>
+
+  <div class="block-title" style="margin-top:26px">The Eight Onboarding Elements</div>
+  <div class="ov-grid">
+    <div class="ov-card" style="--oa:var(--navy-m)" onclick="go('e1')"><div class="ov-num">1</div><div class="ov-id">Element 1 &middot; Pre-Hire</div><div class="ov-card-title">Pre-Employment &amp; Credentialing</div><div class="ov-card-meta">8 checkpoints &middot; License, health clearance, background, CPR/BLS</div></div>
+    <div class="ov-card" style="--oa:var(--cyan)" onclick="go('e2')"><div class="ov-num">2</div><div class="ov-id">Element 2 &middot; Orientation</div><div class="ov-card-title">General Hospital Orientation</div><div class="ov-card-meta">5 checkpoints &middot; 1 decision node &middot; Culture &amp; chain of command</div></div>
+    <div class="ov-card" style="--oa:var(--crimson)" onclick="go('e3')"><div class="ov-num">3</div><div class="ov-id">Element 3 &middot; Mandatory</div><div class="ov-card-title">Regulatory &amp; Safety Training</div><div class="ov-card-meta">6 checkpoints &middot; 2 decision nodes &middot; Falls, PPE, codes</div></div>
+    <div class="ov-card" style="--oa:var(--teal)" onclick="go('e4')"><div class="ov-num">4</div><div class="ov-id">Element 4 &middot; Competency</div><div class="ov-card-title">Clinical Skills Validation</div><div class="ov-card-meta">6 competencies &middot; 4 decision nodes &middot; ADLs to reporting</div></div>
+    <div class="ov-card" style="--oa:var(--purple)" onclick="go('e5')"><div class="ov-num">5</div><div class="ov-id">Element 5 &middot; Informatics</div><div class="ov-card-title">EHR &amp; Documentation Training</div><div class="ov-card-meta">2 decision nodes &middot; Flowsheets, I/O, late entries</div></div>
+    <div class="ov-card" style="--oa:var(--amber)" onclick="go('e6')"><div class="ov-num">6</div><div class="ov-id">Element 6 &middot; Unit Fit</div><div class="ov-card-title">Unit-Specific Orientation</div><div class="ov-card-meta">5 unit profiles &middot; 1 decision node &middot; Population &amp; routines</div></div>
+    <div class="ov-card" style="--oa:var(--orange)" onclick="go('e7')"><div class="ov-num">7</div><div class="ov-id">Element 7 &middot; Preceptorship</div><div class="ov-card-title">Preceptorship / Buddy Period</div><div class="ov-card-meta">5 milestones &middot; 1 decision node &middot; Supervised &rarr; independent</div></div>
+    <div class="ov-card" style="--oa:var(--teal-d)" onclick="go('e8')"><div class="ov-num">8</div><div class="ov-id">Element 8 &middot; Sustain</div><div class="ov-card-title">Ongoing Checkpoints</div><div class="ov-card-meta">5 milestones &middot; 1 decision node &middot; 30/60/90-day &amp; annual</div></div>
+  </div>
+  <div class="nav-ctrl"><div></div><button class="btn btn-next" onclick="showModal()">Begin Onboarding Pathway &rarr;</button></div>
+</div>
+<!-- ELEMENT 1 -->
+<div id="panel-e1" class="panel">
+  <div class="progress-bar"><div class="pb-label">Element 1 / 8</div><div class="pb-track"><div class="pb-fill" style="width:12%"></div></div><div class="pb-pct">Pre-Employment</div></div>
+  <div class="env-hero">
+    <svg class="env-scene" viewBox="0 0 900 240" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="e1bg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#16314A"/><stop offset="100%" stop-color="#0A1826"/></linearGradient></defs>
+      <rect width="900" height="240" fill="url(#e1bg)"/>
+      <rect x="0" y="170" width="900" height="70" fill="#13283C"/>
+      <line x1="0" y1="170" x2="900" y2="170" stroke="#1F3A52" stroke-width="2"/>
+      <g transform="translate(120,90)">
+        <rect x="0" y="14" width="120" height="80" rx="4" fill="#24405A"/>
+        <rect x="8" y="6" width="120" height="80" rx="4" fill="#2E4A64"/>
+        <rect x="16" y="-2" width="120" height="80" rx="4" fill="#E8EEF3"/>
+        <line x1="28" y1="14" x2="124" y2="14" stroke="#9DB2C4" stroke-width="3"/>
+        <line x1="28" y1="26" x2="124" y2="26" stroke="#C4D2DE" stroke-width="3"/>
+        <line x1="28" y1="38" x2="100" y2="38" stroke="#C4D2DE" stroke-width="3"/>
+        <circle cx="108" cy="56" r="13" fill="none" stroke="#00C896" stroke-width="2.5"/>
+        <path d="M101,56 l5,5 l9,-11" stroke="#00C896" stroke-width="2.5" fill="none"/>
+      </g>
+      <g transform="translate(380,70)">
+        <line x1="40" y1="-30" x2="40" y2="14" stroke="#0BBCD4" stroke-width="3"/>
+        <rect x="6" y="14" width="84" height="106" rx="8" fill="#FFFFFF"/>
+        <rect x="6" y="14" width="84" height="26" rx="8" fill="#00A87A"/>
+        <circle cx="30" cy="62" r="15" fill="#C9D8E2"/>
+        <rect x="52" y="52" width="32" height="5" rx="2" fill="#C9D8E2"/>
+        <rect x="52" y="62" width="26" height="5" rx="2" fill="#D8E2EA"/>
+        <rect x="14" y="88" width="68" height="6" rx="3" fill="#E2EAF0"/>
+        <rect x="14" y="100" width="48" height="6" rx="3" fill="#E2EAF0"/>
+        <text x="48" y="32" text-anchor="middle" font-family="monospace" font-size="9" fill="#fff" font-weight="bold">CNA</text>
+      </g>
+      <g transform="translate(620,82)">
+        <path d="M55,4 L100,20 L100,62 Q100,104 55,120 Q10,104 10,62 L10,20 Z" fill="#16344C" stroke="#0BBCD4" stroke-width="2"/>
+        <path d="M38,62 l13,14 l24,-32" stroke="#00C896" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <text x="55" y="108" text-anchor="middle" font-family="monospace" font-size="8" fill="#7FA8C0">VERIFIED</text>
+      </g>
+      <text x="450" y="34" text-anchor="middle" fill="#5C7E98" font-family="monospace" font-size="10" letter-spacing="3">CREDENTIALING &amp; PRE-HIRE VERIFICATION</text>
+    </svg>
+    <div class="env-overlay"></div>
+    <div class="env-hud">
+      <div class="env-label">Element 01 &middot; Pre-Employment Phase &middot; Before Day One</div>
+      <div class="env-title">Credentialing &mdash; The Gate Before the Floor</div>
+      <div class="env-meta">No CNA reaches a patient until every credential clears. This element confirms licensure, health, and legal eligibility &mdash; the foundation everything else is built on.</div>
+      <div class="env-badges"><span class="env-badge teal">Compliance Gate</span><span class="env-badge">License Verification</span><span class="env-badge">Occupational Health</span></div>
+    </div>
+  </div>
+  <div class="annotation ann-navy"><div class="ann-label">Why This Element Matters</div><div class="ann-body">Credentialing is a regulatory and patient-safety gate, not paperwork. An unverified certification, a missed TB screen, or an unresolved exclusion-list hit can void the entire placement. Mark each item as it is confirmed by HR or Occupational Health.</div></div>
+  <div class="block-title">Credentialing Checklist &mdash; 8 Items</div>
+  <div class="check-list">
+    <div class="check-item" data-check="c1_lic"><div class="check-box"></div><div class="ck-body"><div class="ck-title">CNA license / certification verified<span class="ck-tag b-c">REQUIRED</span></div><div class="ck-sub">Confirm active certification with the state nurse aide registry where required by the state of practice.</div></div></div>
+    <div class="check-item" data-check="c1_bg"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Background check &amp; exclusion screening cleared<span class="ck-tag b-c">REQUIRED</span></div><div class="ck-sub">Criminal background plus OIG / SAM exclusion-list screening completed and cleared.</div></div></div>
+    <div class="check-item" data-check="c1_i9"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Employment eligibility / I-9 verified</div><div class="ck-sub">Identity and work-authorization documents reviewed and recorded.</div></div></div>
+    <div class="check-item" data-check="c1_imm"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Immunizations &amp; TB screening complete</div><div class="ck-sub">Required immunization record on file; TB screening (PPD or IGRA) documented.</div></div></div>
+    <div class="check-item" data-check="c1_flu"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Flu / COVID requirements met</div><div class="ck-sub">Seasonal influenza and facility COVID requirements satisfied, or documented exemption on file.</div></div></div>
+    <div class="check-item" data-check="c1_drug"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Drug screening complete</div><div class="ck-sub">Pre-employment drug screen completed where required by facility policy.</div></div></div>
+    <div class="check-item" data-check="c1_cpr"><div class="check-box"></div><div class="ck-body"><div class="ck-title">CPR / BLS certification current<span class="ck-tag b-c">REQUIRED</span></div><div class="ck-sub">Current Basic Life Support card on file with a valid expiration date.</div></div></div>
+    <div class="check-item" data-check="c1_occ"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Occupational health clearance &amp; references verified</div><div class="ck-sub">Fit-for-duty clearance issued; reference and prior-employment verification complete.</div></div></div>
+  </div>
+  <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('overview')">&larr; Overview</button><button class="btn btn-next" onclick="go('e2')">Element 2 &mdash; Orientation &rarr;</button></div>
+</div>
+
+<!-- ELEMENT 2 -->
+<div id="panel-e2" class="panel">
+  <div class="progress-bar"><div class="pb-label">Element 2 / 8</div><div class="pb-track"><div class="pb-fill" style="width:25%"></div></div><div class="pb-pct">Hospital Orientation</div></div>
+  <div class="env-hero">
+    <svg class="env-scene" viewBox="0 0 900 240" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="e2bg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#123A4A"/><stop offset="100%" stop-color="#0A1826"/></linearGradient></defs>
+      <rect width="900" height="240" fill="url(#e2bg)"/>
+      <rect x="320" y="34" width="260" height="120" rx="6" fill="#0A1826" stroke="#0BBCD4" stroke-width="2"/>
+      <rect x="334" y="48" width="170" height="10" rx="3" fill="#00C896"/>
+      <rect x="334" y="68" width="232" height="6" rx="3" fill="#2E4A62"/>
+      <rect x="334" y="82" width="200" height="6" rx="3" fill="#2E4A62"/>
+      <rect x="334" y="96" width="232" height="6" rx="3" fill="#2E4A62"/>
+      <text x="450" y="134" text-anchor="middle" font-family="monospace" font-size="10" fill="#0BBCD4">MISSION &middot; CULTURE &middot; VALUES</text>
+      <g fill="#1C3850">
+        <rect x="120" y="180" width="48" height="36" rx="6"/><rect x="200" y="180" width="48" height="36" rx="6"/>
+        <rect x="280" y="180" width="48" height="36" rx="6"/><rect x="360" y="180" width="48" height="36" rx="6"/>
+        <rect x="440" y="180" width="48" height="36" rx="6"/><rect x="520" y="180" width="48" height="36" rx="6"/>
+        <rect x="600" y="180" width="48" height="36" rx="6"/><rect x="680" y="180" width="48" height="36" rx="6"/>
+      </g>
+      <g fill="#264860"><circle cx="144" cy="170" r="13"/><circle cx="304" cy="170" r="13"/><circle cx="464" cy="170" r="13"/><circle cx="624" cy="170" r="13"/></g>
+      <text x="450" y="24" text-anchor="middle" fill="#5C7E98" font-family="monospace" font-size="10" letter-spacing="3">NEW EMPLOYEE ORIENTATION</text>
+    </svg>
+    <div class="env-overlay"></div>
+    <div class="env-hud">
+      <div class="env-label">Element 02 &middot; Day One Onward &middot; Organization-Wide</div>
+      <div class="env-title">Orientation &mdash; Learning How the Hospital Works</div>
+      <div class="env-meta">Mission, conduct, scheduling, and the chain of command. This element answers a single practical question: when something happens, who do I go to and how do I act?</div>
+      <div class="env-badges"><span class="env-badge teal">Culture &amp; Conduct</span><span class="env-badge">Chain of Command</span><span class="env-badge warn">Decision Node x1</span></div>
+    </div>
+  </div>
+  <div class="block-title">Orientation Checklist &mdash; 5 Items</div>
+  <div class="check-list">
+    <div class="check-item" data-check="c2_mis"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Mission, culture &amp; organizational values</div><div class="ck-sub">Understands the organization's purpose and how it shapes day-to-day patient care.</div></div></div>
+    <div class="check-item" data-check="c2_con"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Professional behavior &amp; code of conduct</div><div class="ck-sub">Reviewed expectations for professionalism, dress, and respectful conduct.</div></div></div>
+    <div class="check-item" data-check="c2_att"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Attendance, scheduling &amp; call-out expectations</div><div class="ck-sub">Knows shift expectations, the call-out process, and reliability standards.</div></div></div>
+    <div class="check-item" data-check="c2_chain"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Chain of command &amp; escalation pathways<span class="ck-tag b-n">CORE</span></div><div class="ck-sub">Can identify who to escalate to &mdash; RN, charge nurse, supervisor &mdash; and in what order.</div></div></div>
+    <div class="check-item" data-check="c2_hr"><div class="check-box"></div><div class="ck-body"><div class="ck-title">HR topics: payroll, benefits, badge access &amp; uniforms</div><div class="ck-sub">Administrative setup complete &mdash; pay, benefits enrollment, badge, and uniform issued.</div></div></div>
+  </div>
+  <div class="block-title" style="--accent:var(--cyan)">Applied Decision &mdash; Chain of Command in Practice</div>
+  <div class="scene-card" style="--accent:var(--cyan)">
+    <div class="sc-head">
+      <div class="sc-eye">Decision E2-01 &middot; Escalation &amp; Scope</div>
+      <div class="sc-title">"The Family Has Questions"</div>
+      <div class="sc-meta">COGNITA: Scope awareness &middot; Escalation routing &middot; Follow-through</div>
+      <div class="sc-badges"><span class="bdg b-cy">Chain of Command</span><span class="bdg b-n">Scope</span></div>
+    </div>
+    <div class="sc-body">
+      <div class="situation" style="--accent:var(--cyan)"><span class="situation-label">Situation</span>Mid-shift, a patient's daughter stops you in the hallway. She is upset that her mother "hasn't been turned in hours" and demands to know <strong>why the care plan was changed</strong>. The RN is in another room.</div>
+      <div class="decision">
+        <div class="dec-head" style="background:var(--cyan-l);border-bottom-color:rgba(11,188,212,.15)"><div class="dec-icon" style="color:#0369A1">&#11041;</div><div class="dec-label" style="color:#0369A1">Decision E2-01 &middot; How do you respond?</div></div>
+        <div class="dec-body">The daughter is waiting. Some of what she's asking is within your role &mdash; and some of it is not. <strong>What do you do?</strong></div>
+        <div class="dec-signal">COGNITA: Does the CNA act within scope, escalate cleanly, and follow through?</div>
+      </div>
+      <div class="choices" id="ch-o1">
+        <div class="choice" data-type="expert" data-node="o1" data-signal="EXPERT: Acts within scope (repositions, documents), routes care-plan questions to the RN, and closes the loop. This is exactly the chain-of-command behavior orientation teaches.">
+          <div class="choice-id">A</div><div class="choice-text">Acknowledge her concern, reposition her mother now and document it, and promptly tell the RN the family has care-plan questions so the nurse can address them.</div>
+          <div class="choice-signal sig-expert">EXPERT: In-scope action + clean escalation + follow-through. Model chain-of-command behavior.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="o1" data-signal="GAP: Explaining the medical rationale of a care plan is outside the CNA scope of practice. Even with good intent, this risks giving inaccurate information and bypasses the licensed nurse.">
+          <div class="choice-id">B</div><div class="choice-text">Reassure the daughter and explain the medical reasoning behind the care plan yourself to calm her down.</div>
+          <div class="choice-signal sig-gap">GAP: Interpreting the care plan is outside CNA scope. Risks misinformation and bypasses the RN.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="o1" data-signal="ADEQUATE: Repositioning is correct, but 'the nurse will come when she has time' under-commits and the escalation is vague. The family's concern may not reliably reach the RN.">
+          <div class="choice-id">C</div><div class="choice-text">Reposition the patient and tell the daughter the nurse will stop by later when she has a moment.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Correct task, but vague escalation &mdash; the concern may not reach the RN.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="o1" data-signal="GAP: Telling the family to go talk to the nurse and walking away is dismissive, leaves the patient un-repositioned, and provides no escalation. Both care and communication fail.">
+          <div class="choice-id">D</div><div class="choice-text">Tell the daughter she needs to speak to the nurse, and continue on to your other tasks.</div>
+          <div class="choice-signal sig-gap">GAP: Dismissive, no escalation, patient left un-repositioned.</div>
+        </div>
+      </div>
+      <div id="out-o1" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="annotation ann-teal"><div class="ann-label">Teaching Point &mdash; Scope &amp; Escalation</div><div class="ann-body">A CNA can always act within scope (repositioning, comfort, documentation) <em>and</em> escalate at the same time. Questions about diagnosis, care-plan changes, or medical reasoning belong to the licensed nurse. "Acknowledge, act in scope, escalate clearly" is the safe pattern.</div></div>
+    </div>
+  </div>
+  <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('e1')">&larr; Element 1</button><button class="btn btn-next" onclick="go('e3')">Element 3 &mdash; Safety &rarr;</button></div>
+</div>
+<!-- ELEMENT 3 -->
+<div id="panel-e3" class="panel">
+  <div class="progress-bar"><div class="pb-label">Element 3 / 8</div><div class="pb-track"><div class="pb-fill" style="width:37%"></div></div><div class="pb-pct">Regulatory &amp; Safety</div></div>
+  <div class="env-hero">
+    <svg class="env-scene" viewBox="0 0 900 240" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="e3bg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1E2436"/><stop offset="100%" stop-color="#0A1826"/></linearGradient></defs>
+      <rect width="900" height="240" fill="url(#e3bg)"/>
+      <polygon points="0,40 900,40 720,200 180,200" fill="#16263A"/>
+      <polygon points="0,40 180,200 180,240 0,240" fill="#0F1E2C"/>
+      <polygon points="900,40 720,200 720,240 900,240" fill="#0F1E2C"/>
+      <line x1="0" y1="40" x2="180" y2="200" stroke="#27405A" stroke-width="1.5"/>
+      <line x1="900" y1="40" x2="720" y2="200" stroke="#27405A" stroke-width="1.5"/>
+      <rect x="400" y="20" width="100" height="34" rx="4" fill="#0A2418" stroke="#00C896" stroke-width="2"/>
+      <text x="450" y="43" text-anchor="middle" font-family="monospace" font-size="16" fill="#00FF9F" font-weight="bold">EXIT</text>
+      <g transform="translate(110,108)"><rect x="0" y="0" width="26" height="54" rx="10" fill="#DC2626"/><rect x="9" y="-12" width="8" height="14" fill="#7A1010"/><rect x="-2" y="-16" width="30" height="8" rx="3" fill="#3A1010"/></g>
+      <g transform="translate(720,96)">
+        <rect x="0" y="0" width="70" height="76" rx="6" fill="#13283C" stroke="#0BBCD4" stroke-width="1.5"/>
+        <rect x="10" y="12" width="50" height="20" rx="3" fill="#1F3A52"/>
+        <rect x="10" y="40" width="50" height="20" rx="3" fill="#1F3A52"/>
+        <text x="35" y="26" text-anchor="middle" font-family="monospace" font-size="8" fill="#0BBCD4">GOWNS</text>
+        <text x="35" y="54" text-anchor="middle" font-family="monospace" font-size="8" fill="#0BBCD4">GLOVES</text>
+      </g>
+      <g transform="translate(420,150)"><polygon points="30,0 60,52 0,52" fill="#F59E0B"/><text x="30" y="46" text-anchor="middle" font-family="monospace" font-size="26" fill="#0A1826" font-weight="bold">!</text></g>
+      <text x="450" y="232" text-anchor="middle" fill="#5C7E98" font-family="monospace" font-size="10" letter-spacing="3">MANDATORY REGULATORY &amp; SAFETY TRAINING</text>
+    </svg>
+    <div class="env-overlay"></div>
+    <div class="env-hud">
+      <div class="env-label">Element 03 &middot; Mandatory Training &middot; Annual + On Hire</div>
+      <div class="env-title">Safety &mdash; The Non-Negotiable Foundation</div>
+      <div class="env-meta">Falls, safe handling, infection prevention, emergency codes, and patient rights. These trainings protect both the patient and the CNA &mdash; and they are never optional.</div>
+      <div class="env-badges"><span class="env-badge crit">Mandatory</span><span class="env-badge">Patient Safety</span><span class="env-badge warn">Decision Nodes x2</span></div>
+    </div>
+  </div>
+  <div class="block-title" style="--accent:var(--crimson)">Mandatory Safety Checklist &mdash; 6 Items</div>
+  <div class="check-list">
+    <div class="check-item" data-check="c3_fall" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Patient safety &amp; fall prevention<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Fall-risk identification, bed/chair alarms, hourly rounding, and post-fall response.</div></div></div>
+    <div class="check-item" data-check="c3_handle" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Safe patient handling &amp; mobility assistance<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Body mechanics, gait belts, mechanical lifts, and when to ask for a second person.</div></div></div>
+    <div class="check-item" data-check="c3_inf" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Infection prevention &amp; PPE</div><div class="ck-sub">Hand hygiene, standard and transmission-based precautions, correct donning/doffing.</div></div></div>
+    <div class="check-item" data-check="c3_emerg" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Emergency preparedness &mdash; fire, codes, evacuation</div><div class="ck-sub">RACE/PASS fire response, hospital code terminology, and evacuation roles.</div></div></div>
+    <div class="check-item" data-check="c3_hipaa" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">HIPAA / privacy &amp; patient rights<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Protecting health information, confidentiality, and respecting patient rights.</div></div></div>
+    <div class="check-item" data-check="c3_abuse" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Abuse / neglect reporting &amp; workplace conduct</div><div class="ck-sub">Mandatory-reporter duties, recognizing abuse/neglect, and respectful workplace standards.</div></div></div>
+  </div>
+  <div class="block-title" style="--accent:var(--crimson)">Applied Decision E3-01 &mdash; Found on the Floor</div>
+  <div class="scene-card" style="--accent:var(--crimson)">
+    <div class="sc-body" style="padding-top:18px">
+      <div class="situation" style="--accent:var(--crimson)"><span class="situation-label">Situation &middot; Fall Response</span>You enter Room 12 and find your <strong>82-year-old patient sitting on the floor</strong> beside the bed. She is alert and says, "I just slipped." The bed alarm was switched off.</div>
+      <div class="decision">
+        <div class="dec-head" style="background:var(--crimson-l);border-bottom-color:rgba(220,38,38,.15)"><div class="dec-icon" style="color:var(--crimson)">&#11041;</div><div class="dec-label" style="color:var(--crimson)">Decision E3-01 &middot; What are your first actions?</div></div>
+        <div class="dec-body">An unwitnessed fall just happened. <strong>What do you do first?</strong></div>
+        <div class="dec-signal">COGNITA: Does the CNA protect the patient, avoid moving her, and escalate before transfer?</div>
+      </div>
+      <div class="choices" id="ch-sf1">
+        <div class="choice" data-type="expert" data-node="sf1" data-signal="EXPERT: Stay with patient, call for help, do not move, immediate RN notification. An unwitnessed fall requires assessment before any transfer - textbook post-fall protocol.">
+          <div class="choice-id">A</div><div class="choice-text">Stay with her, call for help with the call light, do not move her, and notify the RN immediately so she can be assessed before any transfer.</div>
+          <div class="choice-signal sig-expert">EXPERT: Protect, do-not-move, escalate first. Correct post-fall protocol.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="sf1" data-signal="ADEQUATE: Reporting is correct, but helping a fallen patient back to bed before an RN assessment risks worsening an undetected injury. Assessment must come before transfer.">
+          <div class="choice-id">B</div><div class="choice-text">Confirm she's alert, help her back into bed, then tell the nurse what happened.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Reported - but moving before assessment risks hidden injury.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="sf1" data-signal="GAP: Lifting her up, calling it minor, and continuing rounds skips assessment entirely and never escalates an unwitnessed fall. Serious injuries can be silent in older adults.">
+          <div class="choice-id">C</div><div class="choice-text">Help her up quickly, settle her in bed, and finish your rounds &mdash; she says she feels fine.</div>
+          <div class="choice-signal sig-gap">GAP: No assessment, no escalation. Unwitnessed falls require RN evaluation.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="sf1" data-signal="GAP: Documenting and resetting the alarm before notifying the RN delays the assessment. Notification is the priority - charting comes after the patient is safe.">
+          <div class="choice-id">D</div><div class="choice-text">Document the fall and switch the bed alarm back on, then move on to your assignment.</div>
+          <div class="choice-signal sig-gap">GAP: Charting before notifying the RN delays assessment.</div>
+        </div>
+      </div>
+      <div id="out-sf1" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="block-title" style="--accent:var(--crimson);margin-top:20px">Applied Decision E3-02 &mdash; Contact Precautions</div>
+      <div class="situation" style="--accent:var(--crimson)"><span class="situation-label">Situation &middot; Infection Prevention</span>Room 8 has a <strong>contact-precautions sign for C. difficile</strong>. You need to take vital signs and assist the patient with a bedpan.</div>
+      <div class="decision">
+        <div class="dec-head" style="background:var(--crimson-l);border-bottom-color:rgba(220,38,38,.15)"><div class="dec-icon" style="color:var(--crimson)">&#11041;</div><div class="dec-label" style="color:var(--crimson)">Decision E3-02 &middot; How do you proceed?</div></div>
+        <div class="dec-body">PPE choice and hand-hygiene method both matter here. <strong>What's your approach?</strong></div>
+        <div class="dec-signal">COGNITA: Correct PPE for the precaution type &middot; C. diff hand-hygiene exception</div>
+      </div>
+      <div class="choices" id="ch-sf2">
+        <div class="choice" data-type="expert" data-node="sf2" data-signal="EXPERT: Hand hygiene, full gown + gloves before entry, PPE removed inside the room, soap-and-water on exit. C. diff spores resist alcohol - soap and water is the required exception.">
+          <div class="choice-id">A</div><div class="choice-text">Perform hand hygiene, don a gown and gloves before entering, complete care, remove PPE inside the room, and wash with soap and water on exit.</div>
+          <div class="choice-signal sig-expert">EXPERT: Full PPE + soap-and-water for C. diff. Correct precaution practice.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="sf2" data-signal="ADEQUATE: Gown and gloves are right, but alcohol sanitizer does not kill C. diff spores. Soap-and-water hand washing is required after caring for a C. diff patient.">
+          <div class="choice-id">B</div><div class="choice-text">Put on a gown and gloves, complete the tasks, and use the alcohol hand sanitizer on your way out.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Correct PPE - but alcohol gel doesn't kill C. diff spores.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="sf2" data-signal="GAP: Skipping the gown because the task is brief breaks contact-precaution practice. Contact precautions require a gown for any patient or environment contact.">
+          <div class="choice-id">C</div><div class="choice-text">Wear gloves for the bedpan, take vitals quickly without a gown since you won't be long, and sanitize after.</div>
+          <div class="choice-signal sig-gap">GAP: Incomplete PPE - contact precautions require a gown.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="sf2" data-signal="GAP: Passing the task to someone else because you wore PPE elsewhere earlier is avoidance, not infection control. Each patient encounter requires fresh, correct PPE.">
+          <div class="choice-id">D</div><div class="choice-text">Ask another CNA to take it since you already wore PPE in that hallway earlier in the shift.</div>
+          <div class="choice-signal sig-gap">GAP: Avoidance - each encounter needs fresh, correct PPE.</div>
+        </div>
+      </div>
+      <div id="out-sf2" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+    </div>
+  </div>
+  <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('e2')">&larr; Element 2</button><button class="btn btn-next" onclick="go('e4')">Element 4 &mdash; Clinical Skills &rarr;</button></div>
+</div>
+<!-- ELEMENT 4 -->
+<div id="panel-e4" class="panel">
+  <div class="progress-bar"><div class="pb-label">Element 4 / 8</div><div class="pb-track"><div class="pb-fill" style="width:50%"></div></div><div class="pb-pct">Clinical Skills Validation</div></div>
+  <div class="env-hero">
+    <svg class="env-scene" viewBox="0 0 900 240" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="e4bg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#143040"/><stop offset="100%" stop-color="#0A1826"/></linearGradient></defs>
+      <rect width="900" height="240" fill="url(#e4bg)"/>
+      <rect x="0" y="40" width="900" height="6" fill="#1C3850"/>
+      <rect x="600" y="56" width="220" height="100" rx="4" fill="#1A3850" stroke="#27405A" stroke-width="2"/>
+      <line x1="710" y1="56" x2="710" y2="156" stroke="#27405A" stroke-width="2"/>
+      <rect x="150" y="130" width="320" height="86" rx="8" fill="#162635" stroke="#27405A" stroke-width="2"/>
+      <rect x="150" y="130" width="320" height="22" rx="8" fill="#1E3A52"/>
+      <rect x="170" y="138" width="86" height="14" rx="7" fill="#284A66"/>
+      <ellipse cx="300" cy="160" rx="62" ry="24" fill="#22394C"/>
+      <circle cx="300" cy="152" r="18" fill="#2F4A60"/>
+      <line x1="118" y1="40" x2="118" y2="216" stroke="#27405A" stroke-width="3"/>
+      <rect x="106" y="64" width="24" height="40" rx="4" fill="#1E3A52" stroke="#0BBCD4" stroke-width="1.5"/>
+      <rect x="492" y="150" width="64" height="66" rx="5" fill="#1A3148"/>
+      <circle cx="524" cy="138" r="9" fill="#00C896"/>
+      <text x="524" y="142" text-anchor="middle" font-family="monospace" font-size="9" fill="#0A1826" font-weight="bold">+</text>
+      <text x="450" y="28" text-anchor="middle" fill="#5C7E98" font-family="monospace" font-size="10" letter-spacing="3">CLINICAL SKILLS &amp; COMPETENCY VALIDATION</text>
+    </svg>
+    <div class="env-overlay"></div>
+    <div class="env-hud">
+      <div class="env-label">Element 04 &middot; Competency Validation &middot; Skills Lab + Bedside</div>
+      <div class="env-title">Clinical Skills &mdash; Where Knowledge Becomes Care</div>
+      <div class="env-meta">Bathing, feeding, transfers, vital signs, observation, and equipment use. Each skill is observed, validated, and checked off &mdash; and four scenario decisions test judgment in the gray areas.</div>
+      <div class="env-badges"><span class="env-badge teal">6 Competencies</span><span class="env-badge warn">Decision Nodes x4</span><span class="env-badge">Skills Check-Off</span></div>
+    </div>
+  </div>
+  <div class="block-title">Competency Check-Off Grid &mdash; 6 Core Skills</div>
+  <div class="comp-grid">
+    <div class="comp-card" data-check="c4_adl"><div class="comp-head"><div class="comp-check"></div><div class="comp-name">ADLs</div></div><div class="comp-sub">Bathing, dressing, grooming, toileting.</div><div class="comp-status">Awaiting validation</div></div>
+    <div class="comp-card" data-check="c4_feed"><div class="comp-head"><div class="comp-check"></div><div class="comp-name">Feeding &amp; Meal Assistance</div></div><div class="comp-sub">Safe feeding, positioning, aspiration awareness.</div><div class="comp-status">Awaiting validation</div></div>
+    <div class="comp-card" data-check="c4_mob"><div class="comp-head"><div class="comp-check"></div><div class="comp-name">Transfers &amp; Mobility</div></div><div class="comp-sub">Ambulation, positioning, skin protection.</div><div class="comp-status">Awaiting validation</div></div>
+    <div class="comp-card" data-check="c4_vit"><div class="comp-head"><div class="comp-check"></div><div class="comp-name">Vital Signs &amp; Measurement</div></div><div class="comp-sub">Vitals, intake/output, daily weights.</div><div class="comp-status">Awaiting validation</div></div>
+    <div class="comp-card" data-check="c4_obs"><div class="comp-head"><div class="comp-check"></div><div class="comp-name">Observation &amp; Reporting</div></div><div class="comp-sub">Recognizing and reporting condition changes.</div><div class="comp-status">Awaiting validation</div></div>
+    <div class="comp-card" data-check="c4_equip"><div class="comp-head"><div class="comp-check"></div><div class="comp-name">Equipment Use</div></div><div class="comp-sub">Lifts, alarms, wheelchairs, patient equipment.</div><div class="comp-status">Awaiting validation</div></div>
+  </div>
+  <div class="scene-card" style="--accent:var(--teal)">
+    <div class="sc-body" style="padding-top:18px">
+      <div class="block-title">Applied Decision E4-01 &mdash; Dignity &amp; Refusal</div>
+      <div class="situation"><span class="situation-label">Situation &middot; ADLs</span>Your patient, recovering from <strong>hip surgery</strong>, refuses her morning bath: "Leave me alone, I'm tired."</div>
+      <div class="decision">
+        <div class="dec-head"><div class="dec-icon">&#11041;</div><div class="dec-label">Decision E4-01 &middot; What is your best approach?</div></div>
+        <div class="dec-body">She has the right to refuse &mdash; but skin integrity after hip surgery matters. <strong>What do you do?</strong></div>
+        <div class="dec-signal">COGNITA: Respects autonomy &middot; Offers choice &middot; Reports the refusal</div>
+      </div>
+      <div class="choices" id="ch-cs1">
+        <div class="choice" data-type="expert" data-node="cs1" data-signal="EXPERT: Honors the refusal, offers real choices, explains the why, and reports to the RN. Autonomy is respected while skin-integrity risk is still escalated. Person-centered care.">
+          <div class="choice-id">A</div><div class="choice-text">Respect the refusal for now, offer choices &mdash; a partial wash later, or after she rests &mdash; explain why hygiene protects her skin, and report the refusal to the RN.</div>
+          <div class="choice-signal sig-expert">EXPERT: Autonomy + choice + education + escalation. Person-centered care.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="cs1" data-signal="GAP: Telling her everyone gets bathed and proceeding anyway overrides the patient's right to refuse. Consent is required for personal care, even routine care.">
+          <div class="choice-id">B</div><div class="choice-text">Explain that everyone is bathed in the morning and gently go ahead, since hygiene is part of her care.</div>
+          <div class="choice-signal sig-gap">GAP: Overrides consent - the patient has the right to refuse.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="cs1" data-signal="ADEQUATE: Coming back later is reasonable, but offering no real choice and not reporting the refusal leaves the RN unaware of a skin-integrity risk after hip surgery.">
+          <div class="choice-id">C</div><div class="choice-text">Tell her you'll return in an hour to try again, and move on to your next patient.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Reasonable timing - but no choice offered and refusal not reported.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="cs1" data-signal="GAP: Skipping the bath entirely and not telling anyone respects autonomy but hides a clinically relevant refusal. Unreported skipped hygiene is a skin-breakdown risk post hip surgery.">
+          <div class="choice-id">D</div><div class="choice-text">Skip the bath for the day and don't mention it, since she has the right to refuse.</div>
+          <div class="choice-signal sig-gap">GAP: Refusal not reported - hidden skin-integrity risk.</div>
+        </div>
+      </div>
+      <div id="out-cs1" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="block-title" style="margin-top:20px">Applied Decision E4-02 &mdash; Safe Patient Handling</div>
+      <div class="situation"><span class="situation-label">Situation &middot; Transfers &amp; Mobility</span>A <strong>250-lb patient</strong> on bed rest for three days needs to move to the chair. He is weak and unsteady. The unit has a <strong>sit-to-stand lift</strong> available.</div>
+      <div class="decision">
+        <div class="dec-head"><div class="dec-icon">&#11041;</div><div class="dec-label">Decision E4-02 &middot; How do you transfer him?</div></div>
+        <div class="dec-body">Safe handling protects both the patient and you. <strong>What's your method?</strong></div>
+        <div class="dec-signal">COGNITA: Equipment selection &middot; Confirms mobility status &middot; Two-person practice</div>
+      </div>
+      <div class="choices" id="ch-cs2">
+        <div class="choice" data-type="expert" data-node="cs2" data-signal="EXPERT: Mechanical lift + second staff member + RN confirmation of the transfer order. This matches safe-patient-handling policy for a heavy, deconditioned patient.">
+          <div class="choice-id">A</div><div class="choice-text">Use the mechanical sit-to-stand lift with a second staff member, after confirming his transfer order and mobility status with the RN.</div>
+          <div class="choice-signal sig-expert">EXPERT: Lift + two-person + confirmed order. Safe-handling standard met.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="cs2" data-signal="ADEQUATE: A gait belt with a stand-by coworker is safer than going solo, but manually transferring a 250-lb deconditioned patient still carries real injury risk when a lift is available.">
+          <div class="choice-id">B</div><div class="choice-text">Use a gait belt and have a coworker stand by while you transfer him manually.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Stand-by helps - but a lift is the safer choice for this patient.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="cs2" data-signal="GAP: A solo manual transfer of a heavy, weak patient is a leading cause of both patient falls and CNA back injury. I've done heavier is exactly the mindset safe-handling training corrects.">
+          <div class="choice-id">C</div><div class="choice-text">Transfer him yourself with a gait belt &mdash; you've handled heavier, and the lift takes too long.</div>
+          <div class="choice-signal sig-gap">GAP: Solo manual transfer - high injury risk for patient and CNA.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="cs2" data-signal="GAP: Letting a patient pull on your neck and shoulders is an unsafe technique that risks falls and serious cervical injury to the CNA. It is never an acceptable transfer method.">
+          <div class="choice-id">D</div><div class="choice-text">Have him hold onto your neck and shoulders and pivot him across to the chair.</div>
+          <div class="choice-signal sig-gap">GAP: Unsafe - patients must never pull on your neck during a transfer.</div>
+        </div>
+      </div>
+      <div id="out-cs2" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="block-title" style="margin-top:20px">Applied Decision E4-03 &mdash; An Abnormal Vital Sign</div>
+      <div class="situation"><span class="situation-label">Situation &middot; Vital Signs</span>Routine vitals on your post-op patient: <strong>BP 88/54, HR 116</strong>, the rest within normal limits. He looks pale and says he feels "lightheaded."</div>
+      <div class="decision">
+        <div class="dec-head"><div class="dec-icon">&#11041;</div><div class="dec-label">Decision E4-03 &middot; What do you do?</div></div>
+        <div class="dec-body">The numbers are abnormal and the patient has symptoms. <strong>What's your next action?</strong></div>
+        <div class="dec-signal">COGNITA: Confirms the value &middot; Keeps patient safe &middot; Reports without interpreting</div>
+      </div>
+      <div class="choices" id="ch-cs3">
+        <div class="choice" data-type="expert" data-node="cs3" data-signal="EXPERT: Recheck to confirm, keep the patient safe in bed, and report the abnormal vitals plus symptoms to the RN right away. Confirm, protect, escalate - the CNA reporting pattern.">
+          <div class="choice-id">A</div><div class="choice-text">Recheck the BP to confirm, keep the patient safe in bed, and report the abnormal vitals and his symptoms to the RN right away.</div>
+          <div class="choice-signal sig-expert">EXPERT: Confirm, protect, escalate immediately. Correct reporting pattern.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="cs3" data-signal="ADEQUATE: Charting the values is correct, but waiting until the end of rounds to mention an abnormal vital sign with symptoms delays escalation of a possibly deteriorating patient.">
+          <div class="choice-id">B</div><div class="choice-text">Document the vitals and mention them to the nurse when you finish your rounds.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Charted - but delayed escalation of an abnormal, symptomatic value.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="cs3" data-signal="GAP: Re-taking the BP until you get a normal number and charting that one is falsifying data. It hides a real abnormal finding and can directly endanger the patient.">
+          <div class="choice-id">C</div><div class="choice-text">Re-take the BP until you get a reading closer to normal, then chart that value.</div>
+          <div class="choice-signal sig-gap">GAP: Cherry-picking a normal reading falsifies the record.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="cs3" data-signal="GAP: Telling the patient to drink water and rest interprets and treats the finding - outside the CNA scope - and misses escalation of a symptomatic abnormal vital sign.">
+          <div class="choice-id">D</div><div class="choice-text">Tell him to drink water and rest &mdash; low blood pressure usually isn't serious.</div>
+          <div class="choice-signal sig-gap">GAP: Interpreting/treating is outside scope; escalation missed.</div>
+        </div>
+      </div>
+      <div id="out-cs3" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="block-title" style="margin-top:20px">Applied Decision E4-04 &mdash; A Subtle Change</div>
+      <div class="situation"><span class="situation-label">Situation &middot; Observation &amp; Reporting</span>Your patient was chatty yesterday. Today she is <strong>quiet, slow to answer, and didn't finish breakfast</strong>. Her vital signs are within normal limits.</div>
+      <div class="decision">
+        <div class="dec-head"><div class="dec-icon">&#11041;</div><div class="dec-label">Decision E4-04 &middot; What is your best action?</div></div>
+        <div class="dec-body">Vitals are normal &mdash; but something has changed. <strong>What do you do?</strong></div>
+        <div class="dec-signal">COGNITA: Recognizes a mental-status change &middot; Reports despite normal vitals</div>
+      </div>
+      <div class="choices" id="ch-cs4">
+        <div class="choice" data-type="expert" data-node="cs4" data-signal="EXPERT: Reports the mental-status and intake change to the RN promptly and clearly, even with normal vitals. CNAs are the eyes at the bedside - a change in baseline behavior is reportable data.">
+          <div class="choice-id">A</div><div class="choice-text">Report the change in her mental status and intake to the RN promptly and clearly &mdash; even though her vitals are normal.</div>
+          <div class="choice-signal sig-expert">EXPERT: Reports a behavior-baseline change despite normal vitals. CNA as bedside eyes.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="cs4" data-signal="ADEQUATE: Noting the low intake is right, but treating an end-of-shift note as sufficient under-reports a mental-status change the RN may want to assess now.">
+          <div class="choice-id">B</div><div class="choice-text">Note the low intake on the I/O sheet and plan to mention it at the end of shift.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Logs intake - but under-reports a same-day mental-status change.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="cs4" data-signal="GAP: Assuming she's just tired dismisses a change in baseline. A quiet, slow, poorly-eating patient may be developing something the RN needs to evaluate.">
+          <div class="choice-id">C</div><div class="choice-text">Assume she's just tired or having an off day and continue your assignment.</div>
+          <div class="choice-signal sig-gap">GAP: Dismisses a change in baseline - a potentially significant finding.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="cs4" data-signal="GAP: Deciding whether to report based on what the family says delays escalation and relies on informal information. A same-shift change in your patient is reportable regardless.">
+          <div class="choice-id">D</div><div class="choice-text">Ask the family if she's "always like this" and decide from their answer whether to report it.</div>
+          <div class="choice-signal sig-gap">GAP: Delays reporting; leans on informal information.</div>
+        </div>
+      </div>
+      <div id="out-cs4" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="annotation ann-teal"><div class="ann-label">Teaching Point &mdash; The CNA Reporting Reflex</div><div class="ann-body">Across all four decisions the safe pattern repeats: <strong>act within scope, confirm what you see, and report changes promptly to the licensed nurse.</strong> CNAs spend the most time at the bedside &mdash; what they notice and report is often the earliest signal of a deteriorating patient.</div></div>
+    </div>
+  </div>
+  <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('e3')">&larr; Element 3</button><button class="btn btn-next" onclick="go('e5')">Element 5 &mdash; EHR &rarr;</button></div>
+</div>
+<!-- ELEMENT 5 -->
+<div id="panel-e5" class="panel">
+  <div class="progress-bar"><div class="pb-label">Element 5 / 8</div><div class="pb-track"><div class="pb-fill" style="width:62%"></div></div><div class="pb-pct">EHR &amp; Documentation</div></div>
+  <div class="env-hero">
+    <svg class="env-scene" viewBox="0 0 900 240" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="e5bg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#26204A"/><stop offset="100%" stop-color="#0A1826"/></linearGradient></defs>
+      <rect width="900" height="240" fill="url(#e5bg)"/>
+      <rect x="330" y="40" width="240" height="150" rx="8" fill="#0A1826" stroke="#7C3AED" stroke-width="2.5"/>
+      <rect x="346" y="56" width="208" height="118" rx="4" fill="#101830"/>
+      <rect x="358" y="68" width="90" height="9" rx="3" fill="#00C896"/>
+      <rect x="358" y="86" width="184" height="12" rx="2" fill="#1B2A48"/>
+      <rect x="358" y="104" width="184" height="12" rx="2" fill="#1B2A48"/>
+      <rect x="358" y="122" width="184" height="12" rx="2" fill="#1B2A48"/>
+      <rect x="358" y="140" width="184" height="12" rx="2" fill="#1B2A48"/>
+      <rect x="362" y="89" width="44" height="6" rx="2" fill="#9C7FE0"/>
+      <rect x="362" y="107" width="44" height="6" rx="2" fill="#9C7FE0"/>
+      <rect x="362" y="125" width="44" height="6" rx="2" fill="#9C7FE0"/>
+      <rect x="500" y="89" width="34" height="6" rx="2" fill="#00C896"/>
+      <rect x="500" y="107" width="34" height="6" rx="2" fill="#00C896"/>
+      <rect x="500" y="125" width="34" height="6" rx="2" fill="#F59E0B"/>
+      <rect x="430" y="190" width="40" height="30" fill="#1A2A44"/>
+      <rect x="380" y="218" width="140" height="10" rx="5" fill="#1A2A44"/>
+      <text x="450" y="28" text-anchor="middle" fill="#7C7090" font-family="monospace" font-size="10" letter-spacing="3">ELECTRONIC HEALTH RECORD &middot; CNA FLOWSHEET</text>
+    </svg>
+    <div class="env-overlay"></div>
+    <div class="env-hud">
+      <div class="env-label">Element 05 &middot; Documentation Training &middot; EHR Sandbox</div>
+      <div class="env-title">EHR &mdash; If It Isn't Charted, It Didn't Happen</div>
+      <div class="env-meta">Flowsheet charting, intake/output, task queues, and escalation. Documentation is a legal record and a communication tool &mdash; accuracy and honesty are not optional.</div>
+      <div class="env-badges"><span class="env-badge teal">Flowsheets &amp; I/O</span><span class="env-badge warn">Decision Nodes x2</span><span class="env-badge">Late-Entry Policy</span></div>
+    </div>
+  </div>
+  <div class="info-grid">
+    <div class="info-card"><div class="ic-label">Chart</div><div class="ic-val">Vital Signs &amp; Flowsheets</div><div class="ic-sub">Accurate values, correct time, correct patient.</div></div>
+    <div class="info-card"><div class="ic-label">Track</div><div class="ic-val">Intake / Output</div><div class="ic-sub">Measured fluids, weights, bowel/bladder records.</div></div>
+    <div class="info-card"><div class="ic-label">Manage</div><div class="ic-val">Task Lists &amp; Work Queues</div><div class="ic-sub">Completing and signing assigned care tasks.</div></div>
+    <div class="info-card"><div class="ic-label">Escalate</div><div class="ic-val">Documentation Expectations</div><div class="ic-sub">Knowing what to chart and when to also tell the RN.</div></div>
+  </div>
+  <div class="scene-card" style="--accent:var(--purple)">
+    <div class="sc-body" style="padding-top:18px">
+      <div class="block-title" style="--accent:var(--purple)">Applied Decision E5-01 &mdash; The Late Entry</div>
+      <div class="situation" style="--accent:var(--purple)"><span class="situation-label">Situation &middot; Flowsheet Charting</span>It's near the end of your shift and you realize you took <strong>Mr. Lee's 1400 vital signs but never charted them</strong>. You clearly remember the values.</div>
+      <div class="decision">
+        <div class="dec-head" style="background:var(--purple-l);border-bottom-color:rgba(124,58,237,.15)"><div class="dec-icon" style="color:var(--purple)">&#11041;</div><div class="dec-label" style="color:var(--purple)">Decision E5-01 &middot; How do you chart them?</div></div>
+        <div class="dec-body">The vitals are real and accurate &mdash; but the timing matters. <strong>What do you do?</strong></div>
+        <div class="dec-signal">COGNITA: Uses the late-entry policy &middot; Records actual vs entry time &middot; No fabrication</div>
+      </div>
+      <div class="choices" id="ch-ehr1">
+        <div class="choice" data-type="expert" data-node="ehr1" data-signal="EXPERT: Charts as a proper late entry - actual time taken (1400) plus the time entered - per the facility's late-entry policy. Accurate, honest, and legally sound.">
+          <div class="choice-id">A</div><div class="choice-text">Chart the vitals now as a late entry, documenting the actual time taken (1400) and the time entered, per the late-entry policy.</div>
+          <div class="choice-signal sig-expert">EXPERT: Proper late entry - actual time + entry time. Honest and policy-compliant.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="ehr1" data-signal="ADEQUATE: The values are at least recorded, but charting them under the current time misrepresents when they were taken. A late entry must reflect the true assessment time.">
+          <div class="choice-id">B</div><div class="choice-text">Chart them under the current time so the flowsheet looks complete.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Values recorded - but inaccurate timing; not a true late entry.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="ehr1" data-signal="GAP: Leaving the flowsheet blank and only passing the values verbally creates an incomplete legal record. Verbal handoff does not replace documentation.">
+          <div class="choice-id">C</div><div class="choice-text">Leave them blank and just tell the next shift the values verbally.</div>
+          <div class="choice-signal sig-gap">GAP: Incomplete legal record - verbal report isn't documentation.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="ehr1" data-signal="GAP: Entering slightly different estimated values fabricates data. Documentation must reflect what was actually measured - never a guess.">
+          <div class="choice-id">D</div><div class="choice-text">Estimate slightly different values since you're not 100% sure, just to be safe.</div>
+          <div class="choice-signal sig-gap">GAP: Estimating values is fabrication - never chart a guess.</div>
+        </div>
+      </div>
+      <div id="out-ehr1" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="block-title" style="--accent:var(--purple);margin-top:20px">Applied Decision E5-02 &mdash; Family-Reported Intake</div>
+      <div class="situation" style="--accent:var(--purple)"><span class="situation-label">Situation &middot; Intake / Output</span>A patient's son tells you, <strong>"She drank two full cups of juice while you were on break."</strong> You did not witness it.</div>
+      <div class="decision">
+        <div class="dec-head" style="background:var(--purple-l);border-bottom-color:rgba(124,58,237,.15)"><div class="dec-icon" style="color:var(--purple)">&#11041;</div><div class="dec-label" style="color:var(--purple)">Decision E5-02 &middot; How do you document the intake?</div></div>
+        <div class="dec-body">The intake is relevant, but you didn't measure it. <strong>What do you chart?</strong></div>
+        <div class="dec-signal">COGNITA: Documents source honestly &middot; Doesn't omit or misattribute data</div>
+      </div>
+      <div class="choices" id="ch-ehr2">
+        <div class="choice" data-type="expert" data-node="ehr2" data-signal="EXPERT: Documents the intake as family-reported, clearly noting the source, and informs the RN. Honest, complete, and properly attributed.">
+          <div class="choice-id">A</div><div class="choice-text">Document the intake as reported by the family, clearly noting it was family-reported, and let the RN know.</div>
+          <div class="choice-signal sig-expert">EXPERT: Charted with source noted + RN informed. Honest and complete.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="ehr2" data-signal="ADEQUATE: The intake is captured, but recording an exact 480 mL as if you measured it misattributes unverified data as your own measurement.">
+          <div class="choice-id">B</div><div class="choice-text">Add roughly 480 mL to the I/O sheet as though you measured it yourself.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Intake captured - but recorded as measured when it wasn't.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="ehr2" data-signal="GAP: Omitting the intake entirely loses relevant fluid-balance data. The correct move is to chart it accurately with the source noted, not to drop it.">
+          <div class="choice-id">C</div><div class="choice-text">Don't chart it at all, since you didn't see it and can't be certain.</div>
+          <div class="choice-signal sig-gap">GAP: Omits relevant intake data - chart it with the source instead.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="ehr2" data-signal="GAP: Charting whatever number the son gives with no source noted records unsourced data as fact. The source of reported intake must always be documented.">
+          <div class="choice-id">D</div><div class="choice-text">Ask the son for a number and chart whatever he says, without noting the source.</div>
+          <div class="choice-signal sig-gap">GAP: Unsourced data charted as fact.</div>
+        </div>
+      </div>
+      <div id="out-ehr2" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="annotation"><div class="ann-label">Teaching Point &mdash; Documentation Integrity</div><div class="ann-body">Two rules cover almost every CNA charting decision: <strong>chart accurately and chart honestly.</strong> Record what was actually done, at the actual time, and note the source of any information you did not observe yourself. Never guess, never backfill, never misattribute.</div></div>
+    </div>
+  </div>
+  <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('e4')">&larr; Element 4</button><button class="btn btn-next" onclick="go('e6')">Element 6 &mdash; Unit-Specific &rarr;</button></div>
+</div>
+
+<!-- ELEMENT 6 -->
+<div id="panel-e6" class="panel">
+  <div class="progress-bar"><div class="pb-label">Element 6 / 8</div><div class="pb-track"><div class="pb-fill" style="width:75%"></div></div><div class="pb-pct">Unit-Specific Orientation</div></div>
+  <div class="env-hero">
+    <svg class="env-scene" viewBox="0 0 900 240" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="e6bg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#3A2C12"/><stop offset="100%" stop-color="#0A1826"/></linearGradient></defs>
+      <rect width="900" height="240" fill="url(#e6bg)"/>
+      <rect x="120" y="56" width="660" height="130" rx="6" fill="none" stroke="#5C4A22" stroke-width="2"/>
+      <rect x="390" y="96" width="120" height="50" rx="6" fill="#3A2C12" stroke="#F59E0B" stroke-width="2"/>
+      <text x="450" y="125" text-anchor="middle" font-family="monospace" font-size="9" fill="#F5C26B">NURSE STATION</text>
+      <g fill="#1C2F40" stroke="#34506A" stroke-width="1.5">
+        <rect x="140" y="70" width="70" height="44"/><rect x="220" y="70" width="70" height="44"/><rect x="300" y="70" width="70" height="44"/>
+        <rect x="530" y="70" width="70" height="44"/><rect x="610" y="70" width="70" height="44"/><rect x="690" y="70" width="70" height="44"/>
+        <rect x="140" y="128" width="70" height="44"/><rect x="220" y="128" width="70" height="44"/><rect x="300" y="128" width="70" height="44"/>
+        <rect x="530" y="128" width="70" height="44"/><rect x="610" y="128" width="70" height="44"/><rect x="690" y="128" width="70" height="44"/>
+      </g>
+      <g fill="#0BBCD4"><circle cx="175" cy="92" r="6"/><circle cx="335" cy="92" r="6"/><circle cx="565" cy="150" r="6"/><circle cx="725" cy="92" r="6"/></g>
+      <text x="450" y="36" text-anchor="middle" fill="#A78A4A" font-family="monospace" font-size="10" letter-spacing="3">UNIT-SPECIFIC ORIENTATION &middot; KNOW YOUR FLOOR</text>
+      <text x="450" y="212" text-anchor="middle" fill="#5C7E98" font-family="monospace" font-size="9">MED-SURG &middot; ICU &middot; ED &middot; BEHAVIORAL HEALTH &middot; DEMENTIA / GERIATRICS</text>
+    </svg>
+    <div class="env-overlay"></div>
+    <div class="env-hud">
+      <div class="env-label">Element 06 &middot; Unit Orientation &middot; Assigned Floor</div>
+      <div class="env-title">Unit-Specific &mdash; Every Floor Is Its Own World</div>
+      <div class="env-meta">Workflow, patient population, routines, and communication rhythms differ on every unit. A CNA who is excellent on Med-Surg still needs deliberate orientation to the ICU or a dementia unit.</div>
+      <div class="env-badges"><span class="env-badge teal">5 Unit Profiles</span><span class="env-badge warn">Decision Node x1</span><span class="env-badge">Population &amp; Routines</span></div>
+    </div>
+  </div>
+  <div class="block-title" style="--accent:var(--amber)">Unit Profiles &mdash; Population &amp; Safety Focus</div>
+  <div class="unit-grid">
+    <div class="unit-card" style="--uc:var(--teal)"><div class="unit-tag">General Acute</div><div class="unit-name">Med-Surg</div><div class="unit-body">Broad mixed population, high turnover, heavy ADL and mobility load. Strong fundamentals and efficient time management.</div></div>
+    <div class="unit-card" style="--uc:var(--crimson)"><div class="unit-tag">Critical Care</div><div class="unit-name">ICU</div><div class="unit-body">Highly monitored, complex equipment, frequent vitals. Precise measurement, infection control, tight RN communication.</div></div>
+    <div class="unit-card" style="--uc:var(--orange)"><div class="unit-tag">High Acuity</div><div class="unit-name">Emergency Dept</div><div class="unit-body">Unpredictable, fast-paced, rapid turnover. Quick prioritization, sharp observation, and clear escalation.</div></div>
+    <div class="unit-card" style="--uc:var(--purple)"><div class="unit-tag">Specialty</div><div class="unit-name">Behavioral Health</div><div class="unit-body">Safety- and milieu-focused. Therapeutic communication, environmental safety, and de-escalation awareness.</div></div>
+    <div class="unit-card" style="--uc:var(--cyan)"><div class="unit-tag">Specialty</div><div class="unit-name">Dementia / Geriatrics</div><div class="unit-body">Cognitively impaired, fall- and wander-prone. Patience, validation, redirection, and dignity-centered care.</div></div>
+  </div>
+  <div class="scene-card" style="--accent:var(--amber)">
+    <div class="sc-body" style="padding-top:18px">
+      <div class="block-title" style="--accent:var(--amber)">Applied Decision E6-01 &mdash; A Dementia Unit Moment</div>
+      <div class="situation" style="--accent:var(--amber)"><span class="situation-label">Situation &middot; Dementia / Geriatrics Unit</span>A resident with Alzheimer's is anxiously trying to leave the unit, saying she <strong>"has to pick up her children from school."</strong></div>
+      <div class="decision">
+        <div class="dec-head" style="background:var(--amber-l);border-bottom-color:rgba(245,158,11,.15)"><div class="dec-icon" style="color:#B45309">&#11041;</div><div class="dec-label" style="color:#B45309">Decision E6-01 &middot; What is your best response?</div></div>
+        <div class="dec-body">This unit calls for a different communication style than Med-Surg. <strong>How do you respond?</strong></div>
+        <div class="dec-signal">COGNITA: Validation vs reality orientation &middot; De-escalation &middot; Exit-seeking escalation</div>
+      </div>
+      <div class="choices" id="ch-u1">
+        <div class="choice" data-type="expert" data-node="u1" data-signal="EXPERT: Calm approach, validates the feeling, redirects gently, and informs the RN she is exit-seeking. Validation and redirection are the dementia-care standard - and exit-seeking is a safety issue to escalate.">
+          <div class="choice-id">A</div><div class="choice-text">Approach calmly, validate her feeling, gently redirect with a reassuring conversation or activity, and let the RN know she is seeking to exit.</div>
+          <div class="choice-signal sig-expert">EXPERT: Validate + redirect + escalate exit-seeking. Dementia-care standard.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="u1" data-signal="ADEQUATE: Gentle correction is well-meant, but reality orientation often increases distress and agitation in advanced dementia. Validation is generally preferred.">
+          <div class="choice-id">B</div><div class="choice-text">Gently correct her &mdash; explain her children are grown and she lives here now &mdash; then walk her back.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Well-meant - but reality orientation often increases distress in dementia.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="u1" data-signal="GAP: Firmly telling her she cannot leave and steering her back tends to escalate agitation and can feel like a restraint. It works against the milieu approach a dementia unit relies on.">
+          <div class="choice-id">C</div><div class="choice-text">Tell her firmly that she cannot leave and guide her back to her room.</div>
+          <div class="choice-signal sig-gap">GAP: Escalates agitation; can feel restraining.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="u1" data-signal="GAP: Walking with her and ignoring the topic leaves her anxious and never tells the RN she is exit-seeking - a real elopement-safety risk on a dementia unit.">
+          <div class="choice-id">D</div><div class="choice-text">Let her walk with you and ignore the topic until she forgets about it.</div>
+          <div class="choice-signal sig-gap">GAP: Leaves her anxious; exit-seeking not escalated to the RN.</div>
+        </div>
+      </div>
+      <div id="out-u1" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="annotation"><div class="ann-label">Teaching Point &mdash; Unit Fit Is a Skill</div><div class="ann-body">The same patient situation calls for different responses on different units. Unit-specific orientation is not a formality &mdash; it teaches the population's safety risks, communication style, and routines so the CNA's general skills land correctly on that specific floor.</div></div>
+    </div>
+  </div>
+  <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('e5')">&larr; Element 5</button><button class="btn btn-next" onclick="go('e7')">Element 7 &mdash; Preceptorship &rarr;</button></div>
+</div>
+<!-- ELEMENT 7 -->
+<div id="panel-e7" class="panel">
+  <div class="progress-bar"><div class="pb-label">Element 7 / 8</div><div class="pb-track"><div class="pb-fill" style="width:87%"></div></div><div class="pb-pct">Preceptorship</div></div>
+  <div class="env-hero">
+    <svg class="env-scene" viewBox="0 0 900 240" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="e7bg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#3A2418"/><stop offset="100%" stop-color="#0A1826"/></linearGradient></defs>
+      <rect width="900" height="240" fill="url(#e7bg)"/>
+      <rect x="0" y="186" width="900" height="54" fill="#13283C"/>
+      <rect x="540" y="120" width="280" height="80" rx="8" fill="#162635" stroke="#27405A" stroke-width="2"/>
+      <rect x="540" y="120" width="280" height="20" rx="8" fill="#1E3A52"/>
+      <ellipse cx="680" cy="150" rx="56" ry="22" fill="#22394C"/>
+      <circle cx="680" cy="142" r="16" fill="#2F4A60"/>
+      <g transform="translate(300,80)">
+        <circle cx="0" cy="0" r="22" fill="#F59E0B"/>
+        <path d="M-30,110 Q-30,40 0,40 Q30,40 30,110 Z" fill="#D97A12"/>
+        <rect x="-22" y="48" width="44" height="8" rx="3" fill="#FFFFFF" opacity=".5"/>
+      </g>
+      <text x="300" y="208" text-anchor="middle" font-family="monospace" font-size="9" fill="#F5C26B">PRECEPTOR</text>
+      <g transform="translate(390,92)">
+        <circle cx="0" cy="0" r="19" fill="#00C896"/>
+        <path d="M-26,98 Q-26,36 0,36 Q26,36 26,98 Z" fill="#00A87A"/>
+      </g>
+      <text x="390" y="208" text-anchor="middle" font-family="monospace" font-size="9" fill="#7FE0C4">NEW CNA</text>
+      <path d="M150,160 L760,160" stroke="#5C4A2A" stroke-width="2" stroke-dasharray="6 5"/>
+      <text x="450" y="34" text-anchor="middle" fill="#A78A4A" font-family="monospace" font-size="10" letter-spacing="3">PRECEPTORSHIP &middot; SUPERVISED TO INDEPENDENT</text>
+    </svg>
+    <div class="env-overlay"></div>
+    <div class="env-hud">
+      <div class="env-label">Element 07 &middot; Buddy Period &middot; Supervised Practice</div>
+      <div class="env-title">Preceptorship &mdash; From Watching to Doing</div>
+      <div class="env-meta">A structured progression: observe, practice with supervision, take a growing assignment, complete check-offs, and transition to independent practice &mdash; at the pace competence allows.</div>
+      <div class="env-badges"><span class="env-badge teal">5 Milestones</span><span class="env-badge warn">Decision Node x1</span><span class="env-badge">Progressive Release</span></div>
+    </div>
+  </div>
+  <div class="block-title" style="--accent:var(--orange)">Preceptorship Milestones &mdash; Mark as Achieved</div>
+  <div class="timeline" style="--accent:var(--orange)">
+    <div class="tl-node"><div class="tl-dot">01</div><div class="tl-card" data-check="c7_obs"><div class="tl-check"></div><div><div class="tl-title">Observation &amp; supervised practice</div><div class="tl-sub">Shadows the preceptor, then performs core tasks under direct observation.</div></div></div></div>
+    <div class="tl-node"><div class="tl-dot">02</div><div class="tl-card" data-check="c7_assign"><div class="tl-check"></div><div><div class="tl-title">Progressive patient assignment</div><div class="tl-sub">Assignment grows step by step as comfort and competence build.</div></div></div></div>
+    <div class="tl-node"><div class="tl-dot">03</div><div class="tl-card" data-check="c7_checkoff"><div class="tl-check"></div><div><div class="tl-title">Competency check-offs completed</div><div class="tl-sub">Required skills formally validated and signed off by the preceptor.</div></div></div></div>
+    <div class="tl-node"><div class="tl-dot">04</div><div class="tl-card" data-check="c7_near"><div class="tl-check"></div><div><div class="tl-title">Independent care, preceptor nearby</div><div class="tl-sub">Manages a full assignment independently with the preceptor available as a backstop.</div></div></div></div>
+    <div class="tl-node"><div class="tl-dot">05</div><div class="tl-card" data-check="c7_indep"><div class="tl-check"></div><div><div class="tl-title">Transition to independent practice</div><div class="tl-sub">Cleared for independent practice; preceptorship formally concluded.</div></div></div></div>
+  </div>
+  <div class="scene-card" style="--accent:var(--orange)">
+    <div class="sc-body" style="padding-top:18px">
+      <div class="block-title" style="--accent:var(--orange)">Applied Decision E7-01 &mdash; Speaking Up Near the Finish Line</div>
+      <div class="situation" style="--accent:var(--orange)"><span class="situation-label">Situation &middot; End of Buddy Period</span>Your preceptor is busy and asks you to transfer a patient using the <strong>mechanical (Hoyer) lift</strong> &mdash; a piece of equipment you have <strong>not yet been checked off on</strong>.</div>
+      <div class="decision">
+        <div class="dec-head" style="background:var(--orange-l);border-bottom-color:rgba(255,107,53,.15)"><div class="dec-icon" style="color:var(--orange-d)">&#11041;</div><div class="dec-label" style="color:var(--orange-d)">Decision E7-01 &middot; What do you do?</div></div>
+        <div class="dec-body">You're almost independent &mdash; but this skill isn't validated yet. <strong>What's your move?</strong></div>
+        <div class="dec-signal">COGNITA: Scope honesty &middot; Psychological safety to speak up &middot; Patient-safety priority</div>
+      </div>
+      <div class="choices" id="ch-p1">
+        <div class="choice" data-type="expert" data-node="p1" data-signal="EXPERT: Names the un-validated skill honestly and asks for supervision or reassignment. Speaking up about a competency gap - even near the finish line - is exactly what a strong preceptorship builds.">
+          <div class="choice-id">A</div><div class="choice-text">Politely tell your preceptor you haven't completed the mechanical-lift check-off, and ask her to supervise you or assign it to a checked-off staff member.</div>
+          <div class="choice-signal sig-expert">EXPERT: Honest about the gap; asks for supervision. Safe speak-up behavior.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="p1" data-signal="ADEQUATE: Having watched the skill is not the same as being validated on it. Performing an un-checked-off task to avoid seeming unprepared puts the patient and your license at risk.">
+          <div class="choice-id">B</div><div class="choice-text">Do it yourself &mdash; you've watched it several times and don't want to seem unprepared.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Watched it is not validated. Performing an unchecked skill is a risk.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="p1" data-signal="GAP: Operating an un-validated lift and charting the transfer without flagging the scope issue is unsafe and conceals the gap. An unfamiliar lift used wrong can drop or injure a patient.">
+          <div class="choice-id">C</div><div class="choice-text">Operate the lift yourself and chart the transfer without mentioning you weren't checked off.</div>
+          <div class="choice-signal sig-gap">GAP: Un-validated equipment used; the gap concealed.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="p1" data-signal="GAP: Quietly skipping the transfer means the patient's mobility need is missed and no one knows. The safe move is to communicate, not to silently drop assigned care.">
+          <div class="choice-id">D</div><div class="choice-text">Quietly skip the transfer and hope the next shift catches it.</div>
+          <div class="choice-signal sig-gap">GAP: Assigned care omitted with no communication.</div>
+        </div>
+      </div>
+      <div id="out-p1" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="annotation ann-teal"><div class="ann-label">Teaching Point &mdash; Progress at the Pace of Competence</div><div class="ann-body">The buddy period exists so a CNA never has to choose between looking ready and being ready. Saying "I haven't been checked off on that yet" is a sign of a <em>safe</em> new CNA &mdash; and a well-run preceptorship treats it as exactly that.</div></div>
+    </div>
+  </div>
+  <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('e6')">&larr; Element 6</button><button class="btn btn-next" onclick="go('e8')">Element 8 &mdash; Checkpoints &rarr;</button></div>
+</div>
+
+<!-- ELEMENT 8 -->
+<div id="panel-e8" class="panel">
+  <div class="progress-bar"><div class="pb-label">Element 8 / 8</div><div class="pb-track"><div class="pb-fill" style="width:100%"></div></div><div class="pb-pct">Ongoing Checkpoints</div></div>
+  <div class="env-hero">
+    <svg class="env-scene" viewBox="0 0 900 240" preserveAspectRatio="xMidYMid slice">
+      <defs><linearGradient id="e8bg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#123A30"/><stop offset="100%" stop-color="#0A1826"/></linearGradient></defs>
+      <rect width="900" height="240" fill="url(#e8bg)"/>
+      <line x1="120" y1="150" x2="780" y2="150" stroke="#2A5048" stroke-width="3"/>
+      <g>
+        <circle cx="200" cy="150" r="20" fill="#0A1826" stroke="#00C896" stroke-width="3"/>
+        <text x="200" y="155" text-anchor="middle" font-family="monospace" font-size="11" fill="#00C896" font-weight="bold">30</text>
+        <text x="200" y="195" text-anchor="middle" font-family="monospace" font-size="8" fill="#5C8E7E">DAY REVIEW</text>
+        <circle cx="380" cy="150" r="20" fill="#0A1826" stroke="#0BBCD4" stroke-width="3"/>
+        <text x="380" y="155" text-anchor="middle" font-family="monospace" font-size="11" fill="#0BBCD4" font-weight="bold">60</text>
+        <text x="380" y="195" text-anchor="middle" font-family="monospace" font-size="8" fill="#5C8E7E">DAY REVIEW</text>
+        <circle cx="560" cy="150" r="20" fill="#0A1826" stroke="#F59E0B" stroke-width="3"/>
+        <text x="560" y="155" text-anchor="middle" font-family="monospace" font-size="11" fill="#F59E0B" font-weight="bold">90</text>
+        <text x="560" y="195" text-anchor="middle" font-family="monospace" font-size="8" fill="#5C8E7E">DAY REVIEW</text>
+        <circle cx="740" cy="150" r="22" fill="#0A1826" stroke="#FF6B35" stroke-width="3"/>
+        <text x="740" y="156" text-anchor="middle" font-family="monospace" font-size="9" fill="#FF6B35" font-weight="bold">1 YR</text>
+        <text x="740" y="195" text-anchor="middle" font-family="monospace" font-size="8" fill="#5C8E7E">ANNUAL</text>
+      </g>
+      <text x="450" y="50" text-anchor="middle" fill="#5C8E7E" font-family="monospace" font-size="10" letter-spacing="3">ONGOING CHECKPOINTS &middot; SUSTAINED COMPETENCE</text>
+    </svg>
+    <div class="env-overlay"></div>
+    <div class="env-hud">
+      <div class="env-label">Element 08 &middot; Post-Onboarding &middot; 30 / 60 / 90-Day + Annual</div>
+      <div class="env-title">Ongoing Checkpoints &mdash; Onboarding Doesn't End at Day One</div>
+      <div class="env-meta">Structured reviews catch struggles early, reinforce competence, and keep the CNA growing. This element keeps the wisdom flywheel turning long after the buddy period ends.</div>
+      <div class="env-badges"><span class="env-badge teal">5 Milestones</span><span class="env-badge warn">Decision Node x1</span><span class="env-badge">Retention Driver</span></div>
+    </div>
+  </div>
+  <div class="block-title" style="--accent:var(--teal-d)">Checkpoint Milestones &mdash; Mark as Completed</div>
+  <div class="timeline" style="--accent:var(--teal-d)">
+    <div class="tl-node"><div class="tl-dot">30d</div><div class="tl-card" data-check="c8_30"><div class="tl-check"></div><div><div class="tl-title">30-day review</div><div class="tl-sub">Early check-in on fit, comfort, and any immediate support needs.</div></div></div></div>
+    <div class="tl-node"><div class="tl-dot">60d</div><div class="tl-card" data-check="c8_60"><div class="tl-check"></div><div><div class="tl-title">60-day review</div><div class="tl-sub">Progress check on competence, confidence, and workload management.</div></div></div></div>
+    <div class="tl-node"><div class="tl-dot">90d</div><div class="tl-card" data-check="c8_90"><div class="tl-check"></div><div><div class="tl-title">90-day review</div><div class="tl-sub">Formal confirmation of independent competence and onboarding completion.</div></div></div></div>
+    <div class="tl-node"><div class="tl-dot">ANN</div><div class="tl-card" data-check="c8_ann"><div class="tl-check"></div><div><div class="tl-title">Annual competencies &amp; refresher training</div><div class="tl-sub">Yearly skills validation and mandatory refresher modules completed.</div></div></div></div>
+    <div class="tl-node"><div class="tl-dot">SPEC</div><div class="tl-card" data-check="c8_spec"><div class="tl-check"></div><div><div class="tl-title">Specialty education as appropriate</div><div class="tl-sub">Additional unit- or population-specific education as the role develops.</div></div></div></div>
+  </div>
+  <div class="scene-card" style="--accent:var(--teal-d)">
+    <div class="sc-body" style="padding-top:18px">
+      <div class="block-title" style="--accent:var(--teal-d)">Applied Decision E8-01 &mdash; The 60-Day Check-In</div>
+      <div class="situation"><span class="situation-label">Situation &middot; 60-Day Review</span>At her 60-day review, a CNA admits she still feels <strong>uncomfortable using the mechanical lift</strong> and has been quietly avoiding patients who need it.</div>
+      <div class="decision">
+        <div class="dec-head" style="background:var(--teal-l)"><div class="dec-icon">&#11041;</div><div class="dec-label">Decision E8-01 &middot; What is the best response from the program?</div></div>
+        <div class="dec-body">A checkpoint just surfaced a real gap. <strong>How should it be handled?</strong></div>
+        <div class="dec-signal">COGNITA: Treats the checkpoint as a safety-net &middot; Targeted re-education &middot; No punitive framing</div>
+      </div>
+      <div class="choices" id="ch-ck1">
+        <div class="choice" data-type="expert" data-node="ck1" data-signal="EXPERT: Treats the disclosure as exactly what the checkpoint is for - schedules targeted lift re-validation with a preceptor, no blame. This is how ongoing checkpoints prevent harm and turnover.">
+          <div class="choice-id">A</div><div class="choice-text">Thank her for the honesty, schedule a targeted lift re-validation with a preceptor, and follow up at 90 days &mdash; with no punitive framing.</div>
+          <div class="choice-signal sig-expert">EXPERT: Honest disclosure met with targeted re-education. The checkpoint working as designed.</div>
+        </div>
+        <div class="choice" data-type="mid" data-node="ck1" data-signal="ADEQUATE: Encouragement is supportive, but telling her she'll get more comfortable with time leaves the actual skill gap unaddressed and the avoidance behavior continuing.">
+          <div class="choice-id">B</div><div class="choice-text">Reassure her she'll get more comfortable with time and encourage her to keep practicing on her own.</div>
+          <div class="choice-signal sig-mid">ADEQUATE: Supportive - but the skill gap and avoidance go unaddressed.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="ck1" data-signal="GAP: A written warning for honestly disclosing a competency gap punishes exactly the behavior the checkpoint should reward. It teaches CNAs to hide gaps - the opposite of safety.">
+          <div class="choice-id">C</div><div class="choice-text">Issue a written warning for avoiding assigned patients and note it in her file.</div>
+          <div class="choice-signal sig-gap">GAP: Punishes honest disclosure - teaches CNAs to hide gaps.</div>
+        </div>
+        <div class="choice" data-type="gap" data-node="ck1" data-signal="GAP: Marking the review complete and moving on ignores a known, ongoing patient-safety risk. The whole purpose of the checkpoint is to act on what it surfaces.">
+          <div class="choice-id">D</div><div class="choice-text">Note the concern, mark the review complete, and move on &mdash; she's past her buddy period now.</div>
+          <div class="choice-signal sig-gap">GAP: Known safety gap left unaddressed - checkpoint wasted.</div>
+        </div>
+      </div>
+      <div id="out-ck1" class="outcome"><div class="out-label"></div><div class="out-text"></div></div>
+      <div class="annotation ann-teal"><div class="ann-label">Teaching Point &mdash; Checkpoints Are a Safety Net, Not a Verdict</div><div class="ann-body">Structured 30/60/90-day reviews exist to <em>catch</em> struggles while they are still small and fixable. When a checkpoint surfaces a gap, the right response is targeted re-education &mdash; not punishment. Programs that respond well retain more CNAs and prevent more harm.</div></div>
+    </div>
+  </div>
+  <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('e7')">&larr; Element 7</button><button class="btn btn-next" onclick="go('readiness')">View READINESS Profile &rarr;</button></div>
+</div>
+<!-- READINESS PROFILE -->
+<div id="panel-readiness" class="panel">
+  <div class="progress-bar"><div class="pb-label">Pathway Complete</div><div class="pb-track"><div class="pb-fill" style="width:100%"></div></div><div class="pb-pct">READINESS &middot; LUMINA Ready</div></div>
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:12px">
+      <svg width="48" height="48" viewBox="0 0 400 400"><defs><linearGradient id="rg1" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FF9A6C"/><stop offset="100%" stop-color="#D94B12"/></linearGradient><linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00EDB4"/><stop offset="100%" stop-color="#00A87A"/></linearGradient><linearGradient id="rg3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A4A70"/><stop offset="100%" stop-color="#0D2D47"/></linearGradient><linearGradient id="rg4" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0BBCD4"/><stop offset="100%" stop-color="#076A80"/></linearGradient></defs><polygon points="200,20 20,200 200,200" fill="url(#rg1)"/><polygon points="200,20 200,200 380,200" fill="url(#rg2)"/><polygon points="20,200 200,380 200,200" fill="url(#rg3)"/><polygon points="200,200 200,380 380,200" fill="url(#rg4)"/><line x1="200" y1="20" x2="200" y2="380" stroke="#fff" stroke-width="6" stroke-opacity=".5"/><line x1="20" y1="200" x2="380" y2="200" stroke="#fff" stroke-width="6" stroke-opacity=".5"/></svg>
+      <div><div style="font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy)">READINESS Synthesis</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3);letter-spacing:.12em;text-transform:uppercase" id="readiness-meta">Generated from COGNITA onboarding trace</div></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-orange" onclick="saveSession()">Save to Dashboard</button>
+      <button class="btn btn-prev" onclick="go('overview')">New Cohort</button>
+    </div>
+  </div>
+  <div id="readiness-content"><div class="annotation"><div class="ann-label">Awaiting Data</div><div class="ann-body">Complete checklists, competency check-offs, and decision nodes across the eight elements to generate the READINESS profile.</div></div></div>
+  <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('e8')">&larr; Element 8</button><button class="btn btn-next" onclick="go('dashboard')">View LUMINA Dashboard &rarr;</button></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="panel-dashboard" class="panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <svg width="42" height="42" viewBox="0 0 400 400"><defs><linearGradient id="dg1" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FF9A6C"/><stop offset="100%" stop-color="#D94B12"/></linearGradient><linearGradient id="dg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00EDB4"/><stop offset="100%" stop-color="#00A87A"/></linearGradient><linearGradient id="dg3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A4A70"/><stop offset="100%" stop-color="#0D2D47"/></linearGradient><linearGradient id="dg4" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0BBCD4"/><stop offset="100%" stop-color="#076A80"/></linearGradient></defs><polygon points="200,20 20,200 200,200" fill="url(#dg1)"/><polygon points="200,20 200,200 380,200" fill="url(#dg2)"/><polygon points="20,200 200,380 200,200" fill="url(#dg3)"/><polygon points="200,200 200,380 380,200" fill="url(#dg4)"/><line x1="200" y1="20" x2="200" y2="380" stroke="#fff" stroke-width="6" stroke-opacity=".5"/><line x1="20" y1="200" x2="380" y2="200" stroke="#fff" stroke-width="6" stroke-opacity=".5"/></svg>
+      <div><div style="font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy)">LUMINA Dashboard</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3);letter-spacing:.12em;text-transform:uppercase">AIWIZN &middot; CNA Onboarding Cohort Analytics</div></div>
+    </div>
+    <div style="display:flex;gap:8px"><button class="btn btn-prev" onclick="clearData()" style="font-size:9px">Clear Data</button><button class="btn btn-orange" onclick="showModal()" style="font-size:9px">+ New Cohort</button></div>
+  </div>
+  <div class="dash-grid">
+    <div class="stat-card" style="--sc:var(--teal)"><div class="stat-label">CNAs Onboarded</div><div class="stat-value" id="st-total">0</div><div class="stat-sub">Saved onboarding records</div></div>
+    <div class="stat-card" style="--sc:var(--navy-m)"><div class="stat-label">Avg Completion</div><div class="stat-value" id="st-comp">&mdash;</div><div class="stat-sub">Checklist &amp; competency items</div></div>
+    <div class="stat-card" style="--sc:var(--crimson)"><div class="stat-label">Gap Flags</div><div class="stat-value" id="st-gaps">0</div><div class="stat-sub">Judgment development areas</div><div class="stat-trend tr-dn" id="st-gap-pct">&mdash;</div></div>
+    <div class="stat-card" style="--sc:var(--amber)"><div class="stat-label">Avg CRI</div><div class="stat-value" id="st-cri">&mdash;</div><div class="stat-sub">CNA Readiness Index</div></div>
+  </div>
+  <div class="dash-2col">
+    <div class="dash-panel"><div class="dash-panel-title" style="--pd:var(--orange)">Recent Onboarding Records</div><div id="sess-list"><div style="text-align:center;padding:36px;color:var(--txt3);font-family:'JetBrains Mono',monospace;font-size:11px">No records yet. Complete the pathway and save.</div></div></div>
+    <div class="dash-panel"><div class="dash-panel-title" style="--pd:var(--purple)">Cohort Domain Averages</div><div id="dom-avgs" style="display:flex;flex-direction:column;gap:8px"><div style="color:var(--txt3);font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;padding:20px 0">Complete records to see data</div></div></div>
+  </div>
+  <div class="dash-2col">
+    <div class="dash-panel"><div class="dash-panel-title" style="--pd:var(--teal)">Current CNA Domain Profile</div><div id="curr-domains" style="display:flex;flex-direction:column;gap:8px"><div style="color:var(--txt3);font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;padding:20px 0">Complete the pathway to build profile</div></div></div>
+    <div class="dash-panel"><div class="dash-panel-title" style="--pd:var(--amber)">Element Completion Tracker</div><div id="elem-chart"><div style="color:var(--txt3);font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;padding:20px 0">No data yet</div></div></div>
+  </div>
+</div>
+
+</div><!-- end content -->
+</main>
+
+<footer class="footer">
+  <div class="footer-left">
+    <svg width="16" height="16" viewBox="0 0 400 400"><defs><linearGradient id="fl1" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FF9A6C"/><stop offset="100%" stop-color="#D94B12"/></linearGradient><linearGradient id="fl2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00EDB4"/><stop offset="100%" stop-color="#00A87A"/></linearGradient><linearGradient id="fl3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A4A70"/><stop offset="100%" stop-color="#0D2D47"/></linearGradient><linearGradient id="fl4" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0BBCD4"/><stop offset="100%" stop-color="#076A80"/></linearGradient></defs><polygon points="200,20 20,200 200,200" fill="url(#fl1)"/><polygon points="200,20 200,200 380,200" fill="url(#fl2)"/><polygon points="20,200 200,380 200,200" fill="url(#fl3)"/><polygon points="200,200 200,380 380,200" fill="url(#fl4)"/></svg>
+    <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:10px;color:var(--navy)">AIWIZN</span>
+    <span class="footer-tagline">IMAGINATION UNLIMITED</span>
+    <span style="color:var(--txt4)">|</span>
+    <span class="footer-contact"><a href="mailto:Thomas@ateninc.com">Thomas@ateninc.com</a> &middot; <a href="tel:+19193418234">+1.919.341.8234</a></span>
+  </div>
+  <div class="footer-right">&copy; AIWIZN / ATEN Inc 2026 &middot; Private &amp; Confidential</div>
+</footer>
+
+<div class="modal-overlay" id="start-modal">
+  <div class="modal">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <svg width="36" height="36" viewBox="0 0 400 400"><defs><linearGradient id="mm1" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FF9A6C"/><stop offset="100%" stop-color="#D94B12"/></linearGradient><linearGradient id="mm2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00EDB4"/><stop offset="100%" stop-color="#00A87A"/></linearGradient><linearGradient id="mm3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A4A70"/><stop offset="100%" stop-color="#0D2D47"/></linearGradient><linearGradient id="mm4" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0BBCD4"/><stop offset="100%" stop-color="#076A80"/></linearGradient></defs><polygon points="200,20 20,200 200,200" fill="url(#mm1)"/><polygon points="200,20 200,200 380,200" fill="url(#mm2)"/><polygon points="20,200 200,380 200,200" fill="url(#mm3)"/><polygon points="200,200 200,380 380,200" fill="url(#mm4)"/><line x1="200" y1="20" x2="200" y2="380" stroke="#fff" stroke-width="6" stroke-opacity=".5"/><line x1="20" y1="200" x2="380" y2="200" stroke="#fff" stroke-width="6" stroke-opacity=".5"/></svg>
+      <h2 style="margin:0">Begin Onboarding</h2>
+    </div>
+    <p>Enter CNA details to begin the AIWIZN onboarding pathway. Checklist progress and decision-node judgment are tracked across all eight elements.</p>
+    <input class="modal-input" id="m-name" type="text" placeholder="CNA full name (e.g. Maria Santos, CNA)" maxlength="80">
+    <input class="modal-input" id="m-unit" type="text" placeholder="Assigned unit (e.g. Med-Surg, ICU, ED)" maxlength="60">
+    <button class="btn btn-next" onclick="startSession()" style="width:100%;justify-content:center;padding:12px">Begin Onboarding Pathway &rarr;</button>
+    <button onclick="closeModal()" style="width:100%;margin-top:8px;padding:10px;background:none;border:none;color:var(--txt3);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase">Continue as Demo</button>
+  </div>
+</div>
+
+<div class="toast-c" id="toasts"></div>
+<script>
+/* ============ AIWIZN CNA ONBOARDING ENGINE ============ */
+var DB_KEY='aiwizn_cna_v1';
+
+/* --- decision node -> domain weighting --- */
+/* domains: SAF safety, SCO scope/escalation, ORG org-knowledge, UNIT unit-fit, CLIN clinical-skill, DOC documentation, COMM communication */
+var NODES={
+  o1 :{label:'E2 Chain of Command',  W:{SCO:.40,COMM:.30,ORG:.20,SAF:.10}},
+  sf1:{label:'E3 Fall Response',     W:{SAF:.55,SCO:.25,CLIN:.20}},
+  sf2:{label:'E3 Contact Precautions',W:{SAF:.60,CLIN:.25,ORG:.15}},
+  cs1:{label:'E4 Dignity & Refusal', W:{COMM:.35,CLIN:.30,SCO:.20,SAF:.15}},
+  cs2:{label:'E4 Safe Handling',     W:{SAF:.50,CLIN:.35,SCO:.15}},
+  cs3:{label:'E4 Abnormal Vital',    W:{CLIN:.40,SCO:.30,SAF:.30}},
+  cs4:{label:'E4 Subtle Change',     W:{CLIN:.35,COMM:.35,SAF:.30}},
+  ehr1:{label:'E5 Late Entry',       W:{DOC:.65,ORG:.20,SCO:.15}},
+  ehr2:{label:'E5 Family Intake',    W:{DOC:.60,COMM:.25,CLIN:.15}},
+  u1 :{label:'E6 Dementia Unit',     W:{UNIT:.40,COMM:.30,SAF:.20,SCO:.10}},
+  p1 :{label:'E7 Speaking Up',       W:{SCO:.40,SAF:.30,COMM:.30}},
+  ck1:{label:'E8 60-Day Check-In',   W:{ORG:.40,COMM:.30,SAF:.30}}
+};
+var DOM_NAMES={SAF:'Safety Practice',SCO:'Scope & Escalation',ORG:'Organizational Knowledge',UNIT:'Unit Adaptability',CLIN:'Clinical Skill Judgment',DOC:'Documentation Integrity',COMM:'Communication'};
+var DOM_ORDER=['SAF','SCO','CLIN','COMM','DOC','UNIT','ORG'];
+var TS={expert:1.0,mid:.55,gap:.12};
+
+/* element -> its checklist/competency data-check ids */
+var ELEM_CHECKS={
+  e1:['c1_lic','c1_bg','c1_i9','c1_imm','c1_flu','c1_drug','c1_cpr','c1_occ'],
+  e2:['c2_mis','c2_con','c2_att','c2_chain','c2_hr'],
+  e3:['c3_fall','c3_handle','c3_inf','c3_emerg','c3_hipaa','c3_abuse'],
+  e4:['c4_adl','c4_feed','c4_mob','c4_vit','c4_obs','c4_equip'],
+  e5:[],e6:[],
+  e7:['c7_obs','c7_assign','c7_checkoff','c7_near','c7_indep'],
+  e8:['c8_30','c8_60','c8_90','c8_ann','c8_spec']
+};
+var ALL_CHECKS=[];Object.keys(ELEM_CHECKS).forEach(function(k){ALL_CHECKS=ALL_CHECKS.concat(ELEM_CHECKS[k]);});
+var ELEM_NODES={e2:['o1'],e3:['sf1','sf2'],e4:['cs1','cs2','cs3','cs4'],e5:['ehr1','ehr2'],e6:['u1'],e7:['p1'],e8:['ck1']};
+
+/* --- session state --- */
+var S={name:'Demo CNA',unit:'Demo Unit',checks:{},choices:{}};
+var SB_MAP={overview:null,e1:'sb-e1',e2:'sb-e2',e3:'sb-e3',e4:'sb-e4',e5:'sb-e5',e6:'sb-e6',e7:'sb-e7',e8:'sb-e8',readiness:'sb-readiness',dashboard:'sb-dashboard'};
+var CRUMBS={overview:'EIGHT ELEMENTS OF READINESS',e1:'01 / PRE-EMPLOYMENT & CREDENTIALING',e2:'02 / GENERAL HOSPITAL ORIENTATION',e3:'03 / REGULATORY & SAFETY TRAINING',e4:'04 / CLINICAL SKILLS VALIDATION',e5:'05 / EHR & DOCUMENTATION',e6:'06 / UNIT-SPECIFIC ORIENTATION',e7:'07 / PRECEPTORSHIP / BUDDY PERIOD',e8:'08 / ONGOING CHECKPOINTS',readiness:'READINESS PROFILE',dashboard:'LUMINA DASHBOARD'};
+
+/* --- navigation --- */
+function go(id){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  var panel=document.getElementById('panel-'+id);
+  if(panel)panel.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(function(s){s.classList.remove('active');});
+  if(SB_MAP[id]){var sb=document.getElementById(SB_MAP[id]);if(sb)sb.classList.add('active');}
+  var cr=document.getElementById('hdr-crumb');if(cr)cr.textContent=CRUMBS[id]||'';
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='readiness')renderReadiness();
+  if(id==='dashboard')renderDash();
+}
+function goSide(id,el){go(id);}
+
+/* --- checkable items (checklist / competency / timeline) --- */
+function bindChecks(){
+  document.querySelectorAll('[data-check]').forEach(function(el){
+    el.addEventListener('click',function(){
+      var k=el.getAttribute('data-check');
+      S.checks[k]=!S.checks[k];
+      el.classList.toggle('done',S.checks[k]);
+      var st=el.querySelector('.comp-status');
+      if(st)st.textContent=S.checks[k]?'Validated \u2713':'Awaiting validation';
+      updateSidebarDone();
+    });
+  });
+}
+function updateSidebarDone(){
+  Object.keys(ELEM_CHECKS).forEach(function(e){
+    var ids=ELEM_CHECKS[e];var nodes=ELEM_NODES[e]||[];
+    var sb=document.getElementById('sb-'+e);if(!sb)return;
+    var checksDone=ids.length===0||ids.every(function(i){return S.checks[i];});
+    var nodesDone=nodes.length===0||nodes.every(function(n){return S.choices[n];});
+    sb.classList.toggle('done',checksDone&&nodesDone&&(ids.length>0||nodes.length>0));
+  });
+}
+
+/* --- decision choices --- */
+function shuffleChoices(){
+  document.querySelectorAll('.choices').forEach(function(c){
+    var kids=Array.prototype.slice.call(c.children);
+    for(var i=kids.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));c.appendChild(kids[j]);kids.splice(j,1);}
+    var letters=['A','B','C','D','E'];
+    Array.prototype.slice.call(c.children).forEach(function(ch,idx){
+      var id=ch.querySelector('.choice-id');if(id)id.textContent=letters[idx];
+    });
+  });
+}
+function bindChoices(){
+  document.querySelectorAll('.choice[data-type]').forEach(function(ch){
+    ch.addEventListener('click',function(){handleChoice(ch);});
+  });
+}
+var OUT_TEXT={
+  expert:{lab:'COGNITA \u2014 Expert Judgment',pre:'Strong onboarding signal. '},
+  mid:{lab:'COGNITA \u2014 Developing Judgment',pre:'Partially safe \u2014 a coaching opportunity. '},
+  gap:{lab:'COGNITA \u2014 Judgment Gap Flagged',pre:'Gap flagged for targeted re-education. '}
+};
+function handleChoice(ch){
+  var node=ch.getAttribute('data-node');
+  var type=ch.getAttribute('data-type');
+  var group=ch.parentElement;
+  group.querySelectorAll('.choice').forEach(function(c){
+    c.classList.remove('sel-expert','sel-mid','sel-gap');
+    c.classList.add('revealed');
+  });
+  ch.classList.add('sel-'+type);
+  S.choices[node]=type;
+  var out=document.getElementById('out-'+node);
+  if(out){
+    out.className='outcome visible out-'+type;
+    out.querySelector('.out-label').className='out-label lb-'+type;
+    out.querySelector('.out-label').textContent=OUT_TEXT[type].lab;
+    out.querySelector('.out-text').textContent=OUT_TEXT[type].pre+ch.getAttribute('data-signal');
+  }
+  updateSidebarDone();
+  if(type==='expert')toast('Expert judgment recorded \u00b7 '+NODES[node].label,'ok');
+  else if(type==='gap')toast('Gap flagged \u00b7 '+NODES[node].label,'warn');
+  else toast('Response recorded \u00b7 '+NODES[node].label,'');
+}
+
+/* --- scoring engine --- */
+function computeDomains(){
+  var acc={},wt={};
+  DOM_ORDER.forEach(function(d){acc[d]=0;wt[d]=0;});
+  Object.keys(NODES).forEach(function(n){
+    var ch=S.choices[n];if(!ch)return;
+    var W=NODES[n].W;
+    Object.keys(W).forEach(function(d){
+      acc[d]+=W[d]*TS[ch];wt[d]+=W[d];
+    });
+  });
+  var dom={};
+  DOM_ORDER.forEach(function(d){dom[d]=wt[d]>0?Math.round(acc[d]/wt[d]*100):null;});
+  return dom;
+}
+function checkCompletion(){
+  var done=ALL_CHECKS.filter(function(c){return S.checks[c];}).length;
+  return{done:done,total:ALL_CHECKS.length,pct:Math.round(done/ALL_CHECKS.length*100)};
+}
+function decisionStats(){
+  var keys=Object.keys(NODES),ans=0,exp=0,gap=0,mid=0;
+  keys.forEach(function(n){var c=S.choices[n];if(c){ans++;if(c==='expert')exp++;else if(c==='gap')gap++;else mid++;}});
+  return{answered:ans,total:keys.length,expert:exp,gap:gap,mid:mid};
+}
+function computeCRI(){
+  var comp=checkCompletion();
+  var ds=decisionStats();
+  var judg=ds.answered>0?(ds.expert*1.0+ds.mid*.55+ds.gap*.12)/ds.answered:0;
+  /* CRI = 45% checklist completion + 55% decision judgment */
+  return Math.round((comp.pct/100*.45 + judg*.55)*100);
+}
+function readinessStage(cri,gap){
+  if(cri>=85&&gap===0)return{s:'Stage 4 \u2014 Independent: Cleared for Independent Practice',c:'var(--teal-d)'};
+  if(cri>=70)return{s:'Stage 3 \u2014 Emerging: Light Supervision',c:'var(--cyan)'};
+  if(cri>=50)return{s:'Stage 2 \u2014 Developing: Preceptor-Supported',c:'#B45309'};
+  return{s:'Stage 1 \u2014 Foundational: Structured Supervision Required',c:'var(--crimson)'};
+}
+function domColor(v){if(v==null)return'var(--border2)';if(v>=80)return'var(--teal)';if(v>=55)return'var(--amber)';return'var(--crimson)';}
+
+/* --- READINESS render --- */
+function renderReadiness(){
+  var el=document.getElementById('readiness-content');
+  var comp=checkCompletion(),ds=decisionStats(),dom=computeDomains(),cri=computeCRI();
+  document.getElementById('readiness-meta').textContent='COGNITA trace \u00b7 '+S.name+' \u00b7 '+S.unit;
+  if(ds.answered===0&&comp.done===0){
+    el.innerHTML='<div class="annotation"><div class="ann-label">Awaiting Data</div><div class="ann-body">Complete checklists, competency check-offs, and decision nodes across the eight elements to generate the READINESS profile.</div></div>';
+    return;
+  }
+  var stage=readinessStage(cri,ds.gap);
+  var criClass=cri>=85?'pt-hi':cri>=60?'pt-mid':'pt-lo';
+  /* terminal block */
+  var term='<div class="persona-terminal"><div class="pt-title">READINESS \u2014 CNA Onboarding Synthesis</div>';
+  term+='CNA&nbsp;&nbsp;&nbsp;&nbsp;: <span class="pt-wh">'+S.name+'</span>\n';
+  term+='UNIT&nbsp;&nbsp;&nbsp;: <span class="pt-wh">'+S.unit+'</span>\n';
+  term+='PATHWAY : '+comp.done+'/'+comp.total+' checkpoints \u00b7 '+ds.answered+'/'+ds.total+' decisions\n';
+  term+='CRI&nbsp;&nbsp;&nbsp;&nbsp;: <span class="'+criClass+'">'+cri+' / 100</span> &nbsp; CNA Readiness Index\n';
+  term+='STAGE&nbsp;&nbsp;: <span class="pt-wh">'+stage.s+'</span>\n';
+  term+='\n<span class="pt-title" style="border:none;padding:0">DOMAIN PROFILE</span>\n';
+  DOM_ORDER.forEach(function(d){
+    var v=dom[d];
+    var bar='';var fill=v==null?0:Math.round(v/10);
+    for(var i=0;i<10;i++)bar+=(i<fill?'\u2588':'\u2591');
+    var cls=v==null?'':(v>=80?'pt-hi':v>=55?'pt-mid':'pt-lo');
+    var lbl=(DOM_NAMES[d]+'                  ').slice(0,22);
+    term+=lbl+' <span class="'+cls+'">'+bar+'</span> '+(v==null?' n/a':(' '+v));
+    term+='\n';
+  });
+  term+='\n<span class="pt-flag">DECISION SIGNAL</span> : '+ds.expert+' expert \u00b7 '+ds.mid+' developing \u00b7 '+ds.gap+' gap\n';
+  /* recommendation */
+  var rec;
+  if(cri>=85&&ds.gap===0)rec='Recommend clearance for independent practice. Maintain via 90-day and annual checkpoints.';
+  else if(ds.gap>0)rec='Targeted re-education recommended before clearance \u2014 see gap-flagged domains below.';
+  else rec='Continue preceptor-supported practice; re-assess at next checkpoint.';
+  term+='<span class="pt-flag">RECOMMENDATION</span>: <span class="pt-wh">'+rec+'</span>';
+  term+='</div>';
+  /* domain cards */
+  var cards='<div class="block-title">Domain Readiness Breakdown</div><div class="dm-wrap">';
+  DOM_ORDER.forEach(function(d){
+    var v=dom[d];var c=domColor(v);
+    cards+='<div class="dm-item"><div class="dm-label">'+DOM_NAMES[d]+'</div><div class="dm-bar-w"><div class="dm-bar-f" style="width:'+(v==null?0:v)+'%;background:'+c+'"></div></div><div class="dm-score" style="color:'+c+'">'+(v==null?'NOT ASSESSED':v+' / 100')+'</div></div>';
+  });
+  cards+='</div>';
+  /* stat summary + gap list */
+  var summary='<div class="dash-grid" style="margin-top:6px"><div class="stat-card" style="--sc:'+stage.c+'"><div class="stat-label">CNA Readiness Index</div><div class="stat-value" style="color:'+stage.c+'">'+cri+'</div><div class="stat-sub">out of 100</div></div>';
+  summary+='<div class="stat-card" style="--sc:var(--navy-m)"><div class="stat-label">Checkpoint Completion</div><div class="stat-value">'+comp.pct+'%</div><div class="stat-sub">'+comp.done+' of '+comp.total+' items</div></div>';
+  summary+='<div class="stat-card" style="--sc:var(--teal)"><div class="stat-label">Expert Decisions</div><div class="stat-value">'+ds.expert+'</div><div class="stat-sub">of '+ds.answered+' answered</div></div>';
+  summary+='<div class="stat-card" style="--sc:var(--crimson)"><div class="stat-label">Gap Flags</div><div class="stat-value">'+ds.gap+'</div><div class="stat-sub">judgment re-education</div></div></div>';
+  /* gap detail */
+  var gaps='';
+  Object.keys(NODES).forEach(function(n){
+    if(S.choices[n]==='gap')gaps+='<div class="ann-body" style="margin-bottom:4px">\u25B8 <strong>'+NODES[n].label+'</strong> \u2014 revisit this decision with a preceptor.</div>';
+  });
+  var gapBlock=gaps?'<div class="annotation"><div class="ann-label">Gap-Flagged Decisions \u2014 Targeted Re-Education</div>'+gaps+'</div>':'<div class="annotation ann-teal"><div class="ann-label">No Judgment Gaps Flagged</div><div class="ann-body">All answered decision nodes met the safe-practice threshold. Continue scheduled checkpoints to sustain competence.</div></div>';
+  el.innerHTML=summary+term+cards+gapBlock;
+}
+
+/* --- localStorage DB --- */
+function loadDB(){try{return JSON.parse(localStorage.getItem(DB_KEY))||[];}catch(e){return[];}}
+function saveDB(d){try{localStorage.setItem(DB_KEY,JSON.stringify(d));return true;}catch(e){return false;}}
+function saveSession(){
+  var ds=decisionStats();
+  if(ds.answered===0){toast('Complete decision nodes before saving','warn');return;}
+  var comp=checkCompletion();
+  var rec={name:S.name,unit:S.unit,cri:computeCRI(),comp:comp.pct,dom:computeDomains(),
+    expert:ds.expert,gap:ds.gap,mid:ds.mid,answered:ds.answered,
+    checks:JSON.parse(JSON.stringify(S.checks)),ts:Date.now()};
+  var db=loadDB();db.unshift(rec);if(db.length>40)db=db.slice(0,40);
+  var ok=saveDB(db);
+  if(ok){toast('Onboarding record saved to LUMINA','ok');go('dashboard');}
+  else{toast('Could not save \u2014 browser storage unavailable','warn');}
+}
+function clearData(){
+  if(!confirm('Clear all saved CNA onboarding records? This cannot be undone.'))return;
+  saveDB([]);renderDash();toast('All records cleared','warn');
+}
+
+/* --- DASHBOARD render --- */
+var AVCOL=['#00C896','#FF6B35','#0BBCD4','#7C3AED','#F59E0B','#1A3A5C','#DC2626'];
+function renderDash(){
+  var db=loadDB();
+  document.getElementById('st-total').textContent=db.length;
+  if(db.length===0){
+    document.getElementById('st-comp').textContent='\u2014';
+    document.getElementById('st-gaps').textContent='0';
+    document.getElementById('st-gap-pct').textContent='\u2014';
+    document.getElementById('st-cri').textContent='\u2014';
+    document.getElementById('sess-list').innerHTML='<div style="text-align:center;padding:36px;color:var(--txt3);font-family:\'JetBrains Mono\',monospace;font-size:11px">No records yet. Complete the pathway and save.</div>';
+    document.getElementById('dom-avgs').innerHTML='<div style="color:var(--txt3);font-family:\'JetBrains Mono\',monospace;font-size:11px;text-align:center;padding:20px 0">Complete records to see data</div>';
+    document.getElementById('elem-chart').innerHTML='<div style="color:var(--txt3);font-family:\'JetBrains Mono\',monospace;font-size:11px;text-align:center;padding:20px 0">No data yet</div>';
+    renderCurrentDomains();
+    return;
+  }
+  var avgComp=Math.round(db.reduce(function(a,r){return a+r.comp;},0)/db.length);
+  var avgCri=Math.round(db.reduce(function(a,r){return a+r.cri;},0)/db.length);
+  var totGap=db.reduce(function(a,r){return a+r.gap;},0);
+  var totDec=db.reduce(function(a,r){return a+r.answered;},0);
+  document.getElementById('st-comp').textContent=avgComp+'%';
+  document.getElementById('st-gaps').textContent=totGap;
+  document.getElementById('st-gap-pct').textContent=totDec>0?Math.round(totGap/totDec*100)+'% of decisions':'\u2014';
+  document.getElementById('st-cri').textContent=avgCri;
+  /* recent list */
+  var list='';
+  db.slice(0,8).forEach(function(r){
+    var cls=r.cri>=85?'cci-h':r.cri>=60?'cci-m':'cci-l';
+    var col=r.cri>=85?'var(--teal)':r.cri>=60?'var(--amber)':'var(--crimson)';
+    var ini=(r.name||'C').trim().charAt(0).toUpperCase();
+    var d=new Date(r.ts);
+    list+='<div class="sess-row"><div class="sess-avatar" style="background:'+col+'">'+ini+'</div>';
+    list+='<div><div class="sess-name">'+r.name+'</div><div class="sess-meta">'+r.unit+' \u00b7 '+r.comp+'% \u00b7 '+(d.getMonth()+1)+'/'+d.getDate()+'</div></div>';
+    list+='<div class="sess-cci '+cls+'">CRI '+r.cri+'</div></div>';
+  });
+  document.getElementById('sess-list').innerHTML=list;
+  /* domain averages */
+  var da='';
+  DOM_ORDER.forEach(function(d,i){
+    var vals=db.map(function(r){return r.dom?r.dom[d]:null;}).filter(function(v){return v!=null;});
+    var av=vals.length?Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length):null;
+    da+='<div class="radar-row"><div class="radar-label">'+DOM_NAMES[d]+'</div><div class="radar-bar-wrap"><div class="radar-bar" style="width:'+(av==null?0:av)+'%;background:'+AVCOL[i]+'"></div></div><div class="radar-val" style="color:'+AVCOL[i]+'">'+(av==null?'\u2014':av)+'</div></div>';
+  });
+  document.getElementById('dom-avgs').innerHTML=da;
+  /* element completion across cohort */
+  var ec='';
+  Object.keys(ELEM_CHECKS).forEach(function(e){
+    var ids=ELEM_CHECKS[e];if(ids.length===0)return;
+    var rates=db.map(function(r){
+      var done=ids.filter(function(i){return r.checks&&r.checks[i];}).length;
+      return done/ids.length;
+    });
+    var av=Math.round(rates.reduce(function(a,b){return a+b;},0)/rates.length*100);
+    ec+='<div class="radar-row"><div class="radar-label">Element '+e.charAt(1)+'</div><div class="radar-bar-wrap"><div class="radar-bar" style="width:'+av+'%;background:linear-gradient(90deg,var(--teal),var(--cyan))"></div></div><div class="radar-val" style="color:var(--teal-d)">'+av+'%</div></div>';
+  });
+  document.getElementById('elem-chart').innerHTML=ec;
+  renderCurrentDomains();
+}
+function renderCurrentDomains(){
+  var dom=computeDomains();var ds=decisionStats();
+  var el=document.getElementById('curr-domains');
+  if(ds.answered===0){el.innerHTML='<div style="color:var(--txt3);font-family:\'JetBrains Mono\',monospace;font-size:11px;text-align:center;padding:20px 0">Complete the pathway to build profile</div>';return;}
+  var html='';
+  DOM_ORDER.forEach(function(d,i){
+    var v=dom[d];var c=domColor(v);
+    html+='<div class="radar-row"><div class="radar-label">'+DOM_NAMES[d]+'</div><div class="radar-bar-wrap"><div class="radar-bar" style="width:'+(v==null?0:v)+'%;background:'+c+'"></div></div><div class="radar-val" style="color:'+c+'">'+(v==null?'\u2014':v)+'</div></div>';
+  });
+  document.getElementById('curr-domains').innerHTML=html;
+}
+
+/* --- modal / session --- */
+function showModal(){document.getElementById('start-modal').classList.add('open');}
+function closeModal(){document.getElementById('start-modal').classList.remove('open');}
+function startSession(){
+  var n=document.getElementById('m-name').value.trim();
+  var u=document.getElementById('m-unit').value.trim();
+  S.name=n||'Demo CNA';S.unit=u||'Demo Unit';
+  S.checks={};S.choices={};
+  document.querySelectorAll('[data-check]').forEach(function(el){el.classList.remove('done');var st=el.querySelector('.comp-status');if(st)st.textContent='Awaiting validation';});
+  document.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel-expert','sel-mid','sel-gap','revealed');});
+  document.querySelectorAll('.outcome').forEach(function(o){o.className='outcome';});
+  updateSidebarDone();
+  document.getElementById('hdr-nurse').textContent=(S.name.split(' ')[0]||'CNA').toUpperCase();
+  closeModal();
+  toast('Onboarding started for '+S.name,'ok');
+  go('e1');
+}
+
+/* --- toast --- */
+function toast(msg,kind){
+  var c=document.getElementById('toasts');
+  var t=document.createElement('div');
+  t.className='toast'+(kind==='ok'?' t-ok':kind==='warn'?' t-warn':'');
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(function(){t.style.transition='opacity .4s';t.style.opacity='0';setTimeout(function(){t.remove();},400);},2800);
+}
+
+/* --- init --- */
+(function init(){
+  shuffleChoices();
+  bindChecks();
+  bindChoices();
+  updateSidebarDone();
+  ['m-name','m-unit'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter')startSession();});
+  });
+  go('overview');
+})();
+</script>
+</body>
+</html>
