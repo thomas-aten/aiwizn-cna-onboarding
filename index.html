@@ -365,10 +365,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
     </div>
     <div class="ov-eye">AIWIZN &middot; CNA Onboarding Engine &middot; POC v1</div>
     <h1 class="ov-big">Credentialed. Competent.<br><em>Confidently Independent.</em></h1>
-    <p class="ov-body">An immersive, eight-element onboarding pathway for Certified Nursing Assistants, Patient Care Technicians, and Patient Care Assistants &mdash; from pre-employment credentialing through 30/60/90-day mastery. Every checklist, competency, and decision is tracked by COGNITA and synthesized into a placement-ready READINESS profile.</p>
+    <p class="ov-body">An immersive, eight-element onboarding pathway for hospital <strong>patient care staff</strong> &mdash; Certified Nursing Assistants, Patient Care Technicians, and Patient Care Assistants &mdash; from pre-employment credentialing through 30/60/90-day mastery. Where an item applies to one role only, it is labeled as such. Every checklist, competency, and decision is tracked by COGNITA and synthesized into a placement-ready READINESS profile.</p>
+    <div class="annotation ann-teal" style="max-width:620px;margin:0 auto;text-align:left"><div class="ann-label">Why Structured Onboarding Matters</div><div class="ann-body">Turnover among patient care staff is highest in the <strong>first 90 days</strong>. A deliberate onboarding pathway &mdash; with structured 30/60/90-day checkpoints &mdash; targets that cliff directly: it catches struggling staff early, reinforces competence, and turns onboarding into the first stage of a longer <strong>onboarding &rarr; upskilling &rarr; retention</strong> continuum.</div></div>
   </div>
 
-  <div class="progress-bar"><div class="pb-label">Pathway Architecture</div><div class="pb-track"><div class="pb-fill" style="width:100%"></div></div><div class="pb-pct">8 Elements &middot; 35 Checkpoints &middot; 11 Decision Nodes</div></div>
+  <div class="progress-bar"><div class="pb-label">Pathway Architecture</div><div class="pb-track"><div class="pb-fill" style="width:100%"></div></div><div class="pb-pct">8 Elements &middot; 37 Checkpoints &middot; 12 Decision Nodes</div></div>
 
   <div class="block-title">The Four Essentials a Strong CNA Onboarding Program Teaches</div>
   <div class="ov-pillars">
@@ -380,9 +381,9 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
 
   <div class="block-title" style="margin-top:26px">The Eight Onboarding Elements</div>
   <div class="ov-grid">
-    <div class="ov-card" style="--oa:var(--navy-m)" onclick="go('e1')"><div class="ov-num">1</div><div class="ov-id">Element 1 &middot; Pre-Hire</div><div class="ov-card-title">Pre-Employment &amp; Credentialing</div><div class="ov-card-meta">8 checkpoints &middot; License, health clearance, background, CPR/BLS</div></div>
+    <div class="ov-card" style="--oa:var(--navy-m)" onclick="go('e1')"><div class="ov-num">1</div><div class="ov-id">Element 1 &middot; Pre-Hire</div><div class="ov-card-title">Pre-Employment &amp; Credentialing</div><div class="ov-card-meta">9 checkpoints &middot; HR screening + Occupational Health clearance</div></div>
     <div class="ov-card" style="--oa:var(--cyan)" onclick="go('e2')"><div class="ov-num">2</div><div class="ov-id">Element 2 &middot; Orientation</div><div class="ov-card-title">General Hospital Orientation</div><div class="ov-card-meta">5 checkpoints &middot; 1 decision node &middot; Culture &amp; chain of command</div></div>
-    <div class="ov-card" style="--oa:var(--crimson)" onclick="go('e3')"><div class="ov-num">3</div><div class="ov-id">Element 3 &middot; Mandatory</div><div class="ov-card-title">Regulatory &amp; Safety Training</div><div class="ov-card-meta">6 checkpoints &middot; 2 decision nodes &middot; Falls, PPE, codes</div></div>
+    <div class="ov-card" style="--oa:var(--crimson)" onclick="go('e3')"><div class="ov-num">3</div><div class="ov-id">Element 3 &middot; Mandatory</div><div class="ov-card-title">Regulatory &amp; Safety Training</div><div class="ov-card-meta">7 checkpoints &middot; 2 decision nodes &middot; Safety + Compliance</div></div>
     <div class="ov-card" style="--oa:var(--teal)" onclick="go('e4')"><div class="ov-num">4</div><div class="ov-id">Element 4 &middot; Competency</div><div class="ov-card-title">Clinical Skills Validation</div><div class="ov-card-meta">6 competencies &middot; 4 decision nodes &middot; ADLs to reporting</div></div>
     <div class="ov-card" style="--oa:var(--purple)" onclick="go('e5')"><div class="ov-num">5</div><div class="ov-id">Element 5 &middot; Informatics</div><div class="ov-card-title">EHR &amp; Documentation Training</div><div class="ov-card-meta">2 decision nodes &middot; Flowsheets, I/O, late entries</div></div>
     <div class="ov-card" style="--oa:var(--amber)" onclick="go('e6')"><div class="ov-num">6</div><div class="ov-id">Element 6 &middot; Unit Fit</div><div class="ov-card-title">Unit-Specific Orientation</div><div class="ov-card-meta">5 unit profiles &middot; 1 decision node &middot; Population &amp; routines</div></div>
@@ -437,16 +438,21 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
     </div>
   </div>
   <div class="annotation ann-navy"><div class="ann-label">Why This Element Matters</div><div class="ann-body">Credentialing is a regulatory and patient-safety gate, not paperwork. An unverified certification, a missed TB screen, or an unresolved exclusion-list hit can void the entire placement. Mark each item as it is confirmed by HR or Occupational Health.</div></div>
-  <div class="block-title">Credentialing Checklist &mdash; 8 Items</div>
+  <div class="block-title">Stage A &mdash; HR-Owned Screening</div>
+  <div class="annotation ann-navy" style="margin-top:0;margin-bottom:10px"><div class="ann-label">Process Note</div><div class="ann-body">HR typically completes references and eligibility, then extends a <strong>contingent offer</strong> &mdash; pending background, health clearance, and drug screen &mdash; before routing the candidate to Occupational Health.</div></div>
   <div class="check-list">
-    <div class="check-item" data-check="c1_lic"><div class="check-box"></div><div class="ck-body"><div class="ck-title">CNA license / certification verified<span class="ck-tag b-c">REQUIRED</span></div><div class="ck-sub">Confirm active certification with the state nurse aide registry where required by the state of practice.</div></div></div>
-    <div class="check-item" data-check="c1_bg"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Background check &amp; exclusion screening cleared<span class="ck-tag b-c">REQUIRED</span></div><div class="ck-sub">Criminal background plus OIG / SAM exclusion-list screening completed and cleared.</div></div></div>
-    <div class="check-item" data-check="c1_i9"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Employment eligibility / I-9 verified</div><div class="ck-sub">Identity and work-authorization documents reviewed and recorded.</div></div></div>
+    <div class="check-item" data-check="c1_lic"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Nurse aide certification verified<span class="ck-tag b-a">CNA-SPECIFIC</span></div><div class="ck-sub">Applies to Certified Nursing Assistants only &mdash; confirm active certification with the state nurse aide registry. PCTs / PCAs may not hold a separate certification; verify per role and facility policy.</div></div></div>
+    <div class="check-item" data-check="c1_ref"><div class="check-box"></div><div class="ck-body"><div class="ck-title">References &amp; prior-employment verified</div><div class="ck-sub">Reference and employment-history verification completed by HR. Applies to all patient care staff.</div></div></div>
+    <div class="check-item" data-check="c1_i9"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Employment eligibility / I-9 verified</div><div class="ck-sub">Identity and work-authorization documents reviewed and recorded. Applies to all patient care staff.</div></div></div>
+    <div class="check-item" data-check="c1_bg"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Background check &amp; exclusion screening cleared<span class="ck-tag b-c">REQUIRED</span></div><div class="ck-sub">Criminal background plus OIG / SAM exclusion-list screening completed and cleared. Applies to all patient care staff.</div></div></div>
+  </div>
+  <div class="block-title">Stage B &mdash; Occupational Health-Owned Clearance</div>
+  <div class="check-list">
     <div class="check-item" data-check="c1_imm"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Immunizations &amp; TB screening complete</div><div class="ck-sub">Required immunization record on file; TB screening (PPD or IGRA) documented.</div></div></div>
     <div class="check-item" data-check="c1_flu"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Flu / COVID requirements met</div><div class="ck-sub">Seasonal influenza and facility COVID requirements satisfied, or documented exemption on file.</div></div></div>
     <div class="check-item" data-check="c1_drug"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Drug screening complete</div><div class="ck-sub">Pre-employment drug screen completed where required by facility policy.</div></div></div>
-    <div class="check-item" data-check="c1_cpr"><div class="check-box"></div><div class="ck-body"><div class="ck-title">CPR / BLS certification current<span class="ck-tag b-c">REQUIRED</span></div><div class="ck-sub">Current Basic Life Support card on file with a valid expiration date.</div></div></div>
-    <div class="check-item" data-check="c1_occ"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Occupational health clearance &amp; references verified</div><div class="ck-sub">Fit-for-duty clearance issued; reference and prior-employment verification complete.</div></div></div>
+    <div class="check-item" data-check="c1_occ"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Fit-for-duty / occupational health clearance<span class="ck-tag b-n">WHERE REQUIRED</span></div><div class="ck-sub">Fit-for-duty evaluation completed where required by facility policy &mdash; not all facilities require a formal evaluation.</div></div></div>
+    <div class="check-item" data-check="c1_cpr"><div class="check-box"></div><div class="ck-body"><div class="ck-title">CPR / BLS certification current<span class="ck-tag b-c">REQUIRED</span></div><div class="ck-sub">Current Basic Life Support card on file with a valid expiration date. Verified by Occupational Health or Nursing Education, per facility practice.</div></div></div>
   </div>
   <div class="nav-ctrl"><button class="btn btn-prev" onclick="go('overview')">&larr; Overview</button><button class="btn btn-next" onclick="go('e2')">Element 2 &mdash; Orientation &rarr;</button></div>
 </div>
@@ -482,6 +488,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
     </div>
   </div>
   <div class="block-title">Orientation Checklist &mdash; 5 Items</div>
+  <div class="annotation ann-navy" style="margin-top:0;margin-bottom:10px"><div class="ann-label">Process Note</div><div class="ann-body">Several of these items &mdash; mission, conduct, attendance, and HR setup &mdash; are commonly delivered through an <strong>Employee Handbook</strong>, where the new hire signs an attestation acknowledging notice. Some notifications are required by state or federal employment law. The handbook attestation can satisfy these items; Chain of Command is the clinical exception and is reinforced through the decision node below.</div></div>
   <div class="check-list">
     <div class="check-item" data-check="c2_mis"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Mission, culture &amp; organizational values</div><div class="ck-sub">Understands the organization's purpose and how it shapes day-to-day patient care.</div></div></div>
     <div class="check-item" data-check="c2_con"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Professional behavior &amp; code of conduct</div><div class="ck-sub">Reviewed expectations for professionalism, dress, and respectful conduct.</div></div></div>
@@ -556,19 +563,23 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
     <div class="env-overlay"></div>
     <div class="env-hud">
       <div class="env-label">Element 03 &middot; Mandatory Training &middot; Annual + On Hire</div>
-      <div class="env-title">Safety &mdash; The Non-Negotiable Foundation</div>
-      <div class="env-meta">Falls, safe handling, infection prevention, emergency codes, and patient rights. These trainings protect both the patient and the CNA &mdash; and they are never optional.</div>
-      <div class="env-badges"><span class="env-badge crit">Mandatory</span><span class="env-badge">Patient Safety</span><span class="env-badge warn">Decision Nodes x2</span></div>
+      <div class="env-title">Safety, Compliance &amp; Regulatory Training</div>
+      <div class="env-meta">Falls, safe handling, infection prevention, emergency codes, privacy law, and mandatory reporting. Every item here is mandatory &mdash; these trainings protect the patient, the staff member, and the organization.</div>
+      <div class="env-badges"><span class="env-badge crit">All Mandatory</span><span class="env-badge">Safety &amp; Compliance</span><span class="env-badge warn">Decision Nodes x2</span></div>
     </div>
   </div>
-  <div class="block-title" style="--accent:var(--crimson)">Mandatory Safety Checklist &mdash; 6 Items</div>
+  <div class="block-title" style="--accent:var(--crimson)">Safety Training &mdash; All Mandatory</div>
   <div class="check-list">
     <div class="check-item" data-check="c3_fall" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Patient safety &amp; fall prevention<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Fall-risk identification, bed/chair alarms, hourly rounding, and post-fall response.</div></div></div>
     <div class="check-item" data-check="c3_handle" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Safe patient handling &amp; mobility assistance<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Body mechanics, gait belts, mechanical lifts, and when to ask for a second person.</div></div></div>
-    <div class="check-item" data-check="c3_inf" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Infection prevention &amp; PPE</div><div class="ck-sub">Hand hygiene, standard and transmission-based precautions, correct donning/doffing.</div></div></div>
-    <div class="check-item" data-check="c3_emerg" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Emergency preparedness &mdash; fire, codes, evacuation</div><div class="ck-sub">RACE/PASS fire response, hospital code terminology, and evacuation roles.</div></div></div>
-    <div class="check-item" data-check="c3_hipaa" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">HIPAA / privacy &amp; patient rights<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Protecting health information, confidentiality, and respecting patient rights.</div></div></div>
-    <div class="check-item" data-check="c3_abuse" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Abuse / neglect reporting &amp; workplace conduct</div><div class="ck-sub">Mandatory-reporter duties, recognizing abuse/neglect, and respectful workplace standards.</div></div></div>
+    <div class="check-item" data-check="c3_injury" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Safe lifting &amp; workplace-injury prevention<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Ergonomics and injury-prevention practice, plus de-escalation techniques for angry or distressed patients and families to reduce workplace-violence risk.</div></div></div>
+    <div class="check-item" data-check="c3_inf" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Infection prevention &amp; PPE<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Hand hygiene, standard and transmission-based precautions, correct donning/doffing.</div></div></div>
+    <div class="check-item" data-check="c3_emerg" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Emergency preparedness &mdash; fire, codes, evacuation<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">RACE/PASS fire response, hospital code terminology, and evacuation roles.</div></div></div>
+  </div>
+  <div class="block-title" style="--accent:var(--crimson)">Compliance &amp; Regulatory Training &mdash; All Mandatory</div>
+  <div class="check-list">
+    <div class="check-item" data-check="c3_hipaa" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">HIPAA, privacy law &amp; patient rights<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Protecting health information and patient rights under HIPAA &mdash; plus any applicable state privacy statutes (e.g. California CMIA), which may add requirements beyond HIPAA.</div></div></div>
+    <div class="check-item" data-check="c3_abuse" style="--accent:var(--crimson)"><div class="check-box"></div><div class="ck-body"><div class="ck-title">Abuse / neglect reporting &amp; workplace conduct<span class="ck-tag b-c">MANDATORY</span></div><div class="ck-sub">Mandatory-reporter duties and respectful-workplace standards. Specific reporting requirements vary by state and by role &mdash; follow facility policy.</div></div></div>
   </div>
   <div class="block-title" style="--accent:var(--crimson)">Applied Decision E3-01 &mdash; Found on the Floor</div>
   <div class="scene-card" style="--accent:var(--crimson)">
@@ -659,6 +670,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
     </div>
   </div>
   <div class="block-title">Competency Check-Off Grid &mdash; 6 Core Skills</div>
+  <div class="annotation ann-teal" style="margin-top:0;margin-bottom:10px"><div class="ann-label">Facility-Specific</div><div class="ann-body">Each hospital sets its own approach to these skills. The engine validates competency against <strong>your facility's own policies and procedures</strong> &mdash; it does not impose a generic external standard.</div></div>
   <div class="comp-grid">
     <div class="comp-card" data-check="c4_adl"><div class="comp-head"><div class="comp-check"></div><div class="comp-name">ADLs</div></div><div class="comp-sub">Bathing, dressing, grooming, toileting.</div><div class="comp-status">Awaiting validation</div></div>
     <div class="comp-card" data-check="c4_feed"><div class="comp-head"><div class="comp-check"></div><div class="comp-name">Feeding &amp; Meal Assistance</div></div><div class="comp-sub">Safe feeding, positioning, aspiration awareness.</div><div class="comp-status">Awaiting validation</div></div>
@@ -810,6 +822,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
       <div class="env-badges"><span class="env-badge teal">Flowsheets &amp; I/O</span><span class="env-badge warn">Decision Nodes x2</span><span class="env-badge">Late-Entry Policy</span></div>
     </div>
   </div>
+  <div class="annotation ann-teal"><div class="ann-label">Facility-Specific</div><div class="ann-body">Every hospital runs its own EHR and documentation standards. This element trains the documentation discipline &mdash; accuracy, timeliness, honesty &mdash; against <strong>your facility's own policies and procedures</strong>.</div></div>
   <div class="info-grid">
     <div class="info-card"><div class="ic-label">Chart</div><div class="ic-val">Vital Signs &amp; Flowsheets</div><div class="ic-sub">Accurate values, correct time, correct patient.</div></div>
     <div class="info-card"><div class="ic-label">Track</div><div class="ic-val">Intake / Output</div><div class="ic-sub">Measured fluids, weights, bowel/bladder records.</div></div>
@@ -900,7 +913,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
     <div class="env-hud">
       <div class="env-label">Element 06 &middot; Unit Orientation &middot; Assigned Floor</div>
       <div class="env-title">Unit-Specific &mdash; Every Floor Is Its Own World</div>
-      <div class="env-meta">Workflow, patient population, routines, and communication rhythms differ on every unit. A CNA who is excellent on Med-Surg still needs deliberate orientation to the ICU or a dementia unit.</div>
+      <div class="env-meta">Workflow, patient population, routines, and communication rhythms differ on every unit &mdash; and an aide's day-to-day responsibilities on Med-Surg differ from those of a colleague in the ED or ICU. A nursing assistant who is excellent on one unit still needs deliberate orientation to the next.</div>
       <div class="env-badges"><span class="env-badge teal">5 Unit Profiles</span><span class="env-badge warn">Decision Node x1</span><span class="env-badge">Population &amp; Routines</span></div>
     </div>
   </div>
@@ -910,12 +923,12 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
     <div class="unit-card" style="--uc:var(--crimson)"><div class="unit-tag">Critical Care</div><div class="unit-name">ICU</div><div class="unit-body">Highly monitored, complex equipment, frequent vitals. Precise measurement, infection control, tight RN communication.</div></div>
     <div class="unit-card" style="--uc:var(--orange)"><div class="unit-tag">High Acuity</div><div class="unit-name">Emergency Dept</div><div class="unit-body">Unpredictable, fast-paced, rapid turnover. Quick prioritization, sharp observation, and clear escalation.</div></div>
     <div class="unit-card" style="--uc:var(--purple)"><div class="unit-tag">Specialty</div><div class="unit-name">Behavioral Health</div><div class="unit-body">Safety- and milieu-focused. Therapeutic communication, environmental safety, and de-escalation awareness.</div></div>
-    <div class="unit-card" style="--uc:var(--cyan)"><div class="unit-tag">Specialty</div><div class="unit-name">Dementia / Geriatrics</div><div class="unit-body">Cognitively impaired, fall- and wander-prone. Patience, validation, redirection, and dignity-centered care.</div></div>
+    <div class="unit-card" style="--uc:var(--cyan)"><div class="unit-tag">Specialty</div><div class="unit-name">Geriatrics</div><div class="unit-body">Older adults, often frail; some patients have cognitive impairment, and fall risk is elevated. Patience, validation, redirection, and dignity-centered care.</div></div>
   </div>
   <div class="scene-card" style="--accent:var(--amber)">
     <div class="sc-body" style="padding-top:18px">
-      <div class="block-title" style="--accent:var(--amber)">Applied Decision E6-01 &mdash; A Dementia Unit Moment</div>
-      <div class="situation" style="--accent:var(--amber)"><span class="situation-label">Situation &middot; Dementia / Geriatrics Unit</span>A resident with Alzheimer's is anxiously trying to leave the unit, saying she <strong>"has to pick up her children from school."</strong></div>
+      <div class="block-title" style="--accent:var(--amber)">Applied Decision E6-01 &mdash; A Geriatrics Unit Moment</div>
+      <div class="situation" style="--accent:var(--amber)"><span class="situation-label">Situation &middot; Geriatrics Unit</span>A resident with dementia is anxiously trying to leave the unit, saying she <strong>"has to pick up her children from school."</strong></div>
       <div class="decision">
         <div class="dec-head" style="background:var(--amber-l);border-bottom-color:rgba(245,158,11,.15)"><div class="dec-icon" style="color:#B45309">&#11041;</div><div class="dec-label" style="color:#B45309">Decision E6-01 &middot; What is your best response?</div></div>
         <div class="dec-body">This unit calls for a different communication style than Med-Surg. <strong>How do you respond?</strong></div>
@@ -930,11 +943,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;font-si
           <div class="choice-id">B</div><div class="choice-text">Gently correct her &mdash; explain her children are grown and she lives here now &mdash; then walk her back.</div>
           <div class="choice-signal sig-mid">ADEQUATE: Well-meant - but reality orientation often increases distress in dementia.</div>
         </div>
-        <div class="choice" data-type="gap" data-node="u1" data-signal="GAP: Firmly telling her she cannot leave and steering her back tends to escalate agitation and can feel like a restraint. It works against the milieu approach a dementia unit relies on.">
+        <div class="choice" data-type="gap" data-node="u1" data-signal="GAP: Firmly telling her she cannot leave and steering her back tends to escalate agitation and can feel like a restraint. It works against the milieu approach a geriatrics unit relies on.">
           <div class="choice-id">C</div><div class="choice-text">Tell her firmly that she cannot leave and guide her back to her room.</div>
           <div class="choice-signal sig-gap">GAP: Escalates agitation; can feel restraining.</div>
         </div>
-        <div class="choice" data-type="gap" data-node="u1" data-signal="GAP: Walking with her and ignoring the topic leaves her anxious and never tells the RN she is exit-seeking - a real elopement-safety risk on a dementia unit.">
+        <div class="choice" data-type="gap" data-node="u1" data-signal="GAP: Walking with her and ignoring the topic leaves her anxious and never tells the RN she is exit-seeking - a real elopement-safety risk on a geriatrics unit.">
           <div class="choice-id">D</div><div class="choice-text">Let her walk with you and ignore the topic until she forgets about it.</div>
           <div class="choice-signal sig-gap">GAP: Leaves her anxious; exit-seeking not escalated to the RN.</div>
         </div>
@@ -1181,7 +1194,7 @@ var NODES={
   cs4:{label:'E4 Subtle Change',     W:{CLIN:.35,COMM:.35,SAF:.30}},
   ehr1:{label:'E5 Late Entry',       W:{DOC:.65,ORG:.20,SCO:.15}},
   ehr2:{label:'E5 Family Intake',    W:{DOC:.60,COMM:.25,CLIN:.15}},
-  u1 :{label:'E6 Dementia Unit',     W:{UNIT:.40,COMM:.30,SAF:.20,SCO:.10}},
+  u1 :{label:'E6 Geriatrics Unit',     W:{UNIT:.40,COMM:.30,SAF:.20,SCO:.10}},
   p1 :{label:'E7 Speaking Up',       W:{SCO:.40,SAF:.30,COMM:.30}},
   ck1:{label:'E8 60-Day Check-In',   W:{ORG:.40,COMM:.30,SAF:.30}}
 };
@@ -1191,9 +1204,9 @@ var TS={expert:1.0,mid:.55,gap:.12};
 
 /* element -> its checklist/competency data-check ids */
 var ELEM_CHECKS={
-  e1:['c1_lic','c1_bg','c1_i9','c1_imm','c1_flu','c1_drug','c1_cpr','c1_occ'],
+  e1:['c1_lic','c1_ref','c1_i9','c1_bg','c1_imm','c1_flu','c1_drug','c1_occ','c1_cpr'],
   e2:['c2_mis','c2_con','c2_att','c2_chain','c2_hr'],
-  e3:['c3_fall','c3_handle','c3_inf','c3_emerg','c3_hipaa','c3_abuse'],
+  e3:['c3_fall','c3_handle','c3_injury','c3_inf','c3_emerg','c3_hipaa','c3_abuse'],
   e4:['c4_adl','c4_feed','c4_mob','c4_vit','c4_obs','c4_equip'],
   e5:[],e6:[],
   e7:['c7_obs','c7_assign','c7_checkoff','c7_near','c7_indep'],
